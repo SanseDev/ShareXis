@@ -1,4 +1,9 @@
+'use client';
+import { useRouter } from 'next/navigation';
+
 export default function Home() {
+  const router = useRouter();
+
   return (
     <div className="min-h-screen bg-[#0f1117] text-white overflow-hidden">
       {/* Navbar */}
@@ -13,7 +18,10 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
             </button>
-            <button className="bg-[#4d7cfe] hover:bg-[#3d6df0] px-5 py-2 rounded-lg transition-colors font-medium">
+            <button 
+              onClick={() => router.push('/login')}
+              className="bg-[#4d7cfe] hover:bg-[#3d6df0] px-5 py-2 rounded-lg transition-colors font-medium"
+            >
               Connexion
             </button>
           </div>
@@ -33,7 +41,10 @@ export default function Home() {
               Une solution professionnelle adaptée à vos besoins.
             </p>
             <div className="flex gap-4">
-              <button className="bg-[#4d7cfe] hover:bg-[#3d6df0] px-8 py-4 rounded-xl transition-colors text-lg font-medium">
+              <button 
+                onClick={() => router.push('/login')}
+                className="bg-[#4d7cfe] hover:bg-[#3d6df0] px-8 py-4 rounded-xl transition-colors text-lg font-medium"
+              >
                 Commencer gratuitement
               </button>
               <button className="bg-[#1a1d24] hover:bg-[#232730] border border-[#232730] px-8 py-4 rounded-xl transition-colors text-lg">
