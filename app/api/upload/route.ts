@@ -29,9 +29,6 @@ export async function POST(request: NextRequest) {
     // Chiffrer le contenu
     const encryptedBuffer = encrypt(buffer, encryptionKey)
 
-    // Créer un hash de l'ID du destinataire pour la vérification
-    const hashedRecipientId = hashRecipientId(recipientId)
-
     // Créer le dossier de stockage s'il n'existe pas
     const uploadDir = join(process.cwd(), 'uploads')
     await mkdir(uploadDir, { recursive: true })
@@ -39,12 +36,12 @@ export async function POST(request: NextRequest) {
 
     // Sauvegarder les métadonnées dans Supabase
     await saveFileMetadata({
-      fileId,
-      fileName: file.name,
-      fileSize: file.size,
-      recipientId: hashedRecipientId,
-      encryptionKey,
-      senderId
+      file_id: fileId,
+      file_name: file.name,
+      file_size: file.size,
+      recipient_id: recipientId,
+      encryption_key: encryptionKey,
+      sender_id: senderId
     })
 
     return NextResponse.json({

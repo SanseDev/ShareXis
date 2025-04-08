@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Send, X } from 'lucide-react'
 import { shareFiles } from '../services/fileService'
+import { useAuth } from '../contexts/AuthContext'
 
 interface ShareFilesProps {
   files: File[]
@@ -10,18 +11,29 @@ interface ShareFilesProps {
 }
 
 export default function ShareFiles({ files, onClose }: ShareFilesProps) {
+  const { deviceId } = useAuth()
   const [recipientId, setRecipientId] = useState('')
   const [error, setError] = useState('')
   const [isSharing, setIsSharing] = useState(false)
 
   const handleShare = async () => {
+    if (!deviceId) {
+      setError('Erreur: ID de l\'appareil non disponible')
+      return
+    }
+
     if (!recipientId.trim()) {
-      setError('Veuillez entrer un ID d&apos;appareil')
+      setError('Veuillez entrer un ID d\'appareil')
       return
     }
 
     if (recipientId.length !== 8) {
-      setError('L&apos;ID d&apos;appareil doit contenir 8 caractères')
+      setError('L\'ID d\'appareil doit contenir 8 caractères')
+      return
+    }
+
+    if (recipientId === deviceId) {
+      setError('Vous ne pouvez pas partager avec votre propre ID')
       return
     }
 
@@ -29,12 +41,11 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
     setError('')
 
     try {
-      // Partager les fichiers
-      await shareFiles(files, recipientId)
+      await shareFiles(files, recipientId, deviceId)
       onClose()
-    } catch (error) {
-      console.error('Erreur de partage:', error)
-      setError('Une erreur est survenue lors du partage des fichiers')
+    } catch (error: any) {
+      console.error('Erreur détaillée:', error)
+      setError(error.message || 'Une erreur est survenue lors du partage des fichiers')
     } finally {
       setIsSharing(false)
     }
@@ -55,16 +66,20 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">ID de l&apos;appareil destinataire</label>
+            <label className="block text-sm text-gray-400 mb-1">ID de l'appareil destinataire</label>
             <input
               type="text"
               value={recipientId}
               onChange={(e) => setRecipientId(e.target.value)}
-              placeholder="Entrez l&apos;ID à 8 caractères"
+              placeholder="Entrez l'ID à 8 caractères"
               className="w-full px-4 py-2 bg-[#232730] rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none"
               maxLength={8}
             />
-            {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
+            {error && (
+              <p className="text-red-400 text-sm mt-1 bg-red-400/10 p-2 rounded">
+                {error}
+              </p>
+            )}
           </div>
 
           <div className="bg-[#232730] rounded-lg p-4">
