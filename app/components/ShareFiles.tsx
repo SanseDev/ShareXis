@@ -13,16 +13,15 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
   const [recipientId, setRecipientId] = useState('')
   const [error, setError] = useState('')
   const [isSharing, setIsSharing] = useState(false)
-  const [progress, setProgress] = useState(0)
 
   const handleShare = async () => {
     if (!recipientId.trim()) {
-      setError('Veuillez entrer un ID d\'appareil')
+      setError('Veuillez entrer un ID d&apos;appareil')
       return
     }
 
     if (recipientId.length !== 8) {
-      setError('L\'ID d\'appareil doit contenir 8 caractères')
+      setError('L&apos;ID d&apos;appareil doit contenir 8 caractères')
       return
     }
 
@@ -56,12 +55,12 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">ID de l'appareil destinataire</label>
+            <label className="block text-sm text-gray-400 mb-1">ID de l&apos;appareil destinataire</label>
             <input
               type="text"
               value={recipientId}
               onChange={(e) => setRecipientId(e.target.value)}
-              placeholder="Entrez l'ID à 8 caractères"
+              placeholder="Entrez l&apos;ID à 8 caractères"
               className="w-full px-4 py-2 bg-[#232730] rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none"
               maxLength={8}
             />

@@ -9,7 +9,7 @@ import ShareFiles from '../components/ShareFiles'
 
 export default function Documents() {
   const router = useRouter()
-  const { isAuthenticated, deviceId } = useAuth()
+  const { isAuthenticated } = useAuth()
   const [isDragging, setIsDragging] = useState(false)
   const [files, setFiles] = useState<File[]>([])
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)

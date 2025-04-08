@@ -1,6 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { useAuth } from './contexts/AuthContext';
+import Image from 'next/image';
 
 export default function Home() {
   const router = useRouter();
@@ -12,9 +13,11 @@ export default function Home() {
       <nav className="border-b border-gray-800/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex items-center">
-            <img 
+            <Image 
               src="/logo.svg" 
               alt="ShareXis" 
+              width={48}
+              height={48}
               className="w-12 h-12"
             />
           </div>

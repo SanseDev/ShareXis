@@ -1,5 +1,4 @@
 import { v4 as uuidv4 } from 'uuid'
-import { encrypt } from '../utils/encryption'
 
 interface UploadResponse {
   fileId: string

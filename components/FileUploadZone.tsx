@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Upload, File, Image, Video } from 'lucide-react';
+import { File, Image, Video } from 'lucide-react';
 
 export default function FileUploadZone({ userId }: { userId: string }) {
   const [uploading, setUploading] = useState(false);
