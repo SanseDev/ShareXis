@@ -1,8 +1,10 @@
 'use client';
 import { useRouter } from 'next/navigation';
+import { useAuth } from './contexts/AuthContext';
 
 export default function Home() {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
 
   return (
     <div className="min-h-screen bg-[#0f1117] text-white overflow-hidden">
@@ -10,7 +12,11 @@ export default function Home() {
       <nav className="border-b border-gray-800/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex items-center">
-            <h1 className="text-xl font-semibold tracking-tight">Share<span className="text-[#4d7cfe]">xis</span></h1>
+            <img 
+              src="/logo.svg" 
+              alt="ShareXis" 
+              className="w-12 h-12"
+            />
           </div>
           <div className="flex items-center gap-4">
             <button className="p-2 rounded-full bg-[#1a1d24] hover:bg-[#232730] transition-colors">
@@ -19,10 +25,10 @@ export default function Home() {
               </svg>
             </button>
             <button 
-              onClick={() => router.push('/login')}
+              onClick={() => router.push('/documents')}
               className="bg-[#4d7cfe] hover:bg-[#3d6df0] px-5 py-2 rounded-lg transition-colors font-medium"
             >
-              Connexion
+              {isAuthenticated ? 'Mes fichiers' : 'Commencer'}
             </button>
           </div>
         </div>
@@ -42,7 +48,7 @@ export default function Home() {
             </p>
             <div className="flex gap-4">
               <button 
-                onClick={() => router.push('/login')}
+                onClick={() => router.push('/documents')}
                 className="bg-[#4d7cfe] hover:bg-[#3d6df0] px-8 py-4 rounded-xl transition-colors text-lg font-medium"
               >
                 Commencer gratuitement
