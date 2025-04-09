@@ -15,6 +15,7 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
   const [recipientId, setRecipientId] = useState('')
   const [error, setError] = useState('')
   const [isSharing, setIsSharing] = useState(false)
+  const [showSuccessNotification, setShowSuccessNotification] = useState(false)
 
   const handleShare = async () => {
     if (!deviceId) {
@@ -42,7 +43,10 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
 
     try {
       await shareFiles(files, recipientId, deviceId)
-      onClose()
+      setShowSuccessNotification(true)
+      setTimeout(() => {
+        onClose()
+      }, 2000)
     } catch (error: any) {
       console.error('Erreur détaillée:', error)
       setError(error.message || 'Une erreur est survenue lors du partage des fichiers')
@@ -52,13 +56,19 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
-      <div className="bg-[#1a1d24] rounded-xl p-6 max-w-md w-full">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <div className="bg-[#1a1d24] rounded-xl p-6 max-w-md w-full relative">
+        {showSuccessNotification && (
+          <div className="absolute top-0 left-0 right-0 -translate-y-full mb-4 p-4 bg-green-500 text-white rounded-t-xl animate-slide-down">
+            Fichiers envoyés avec succès !
+          </div>
+        )}
+        
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold">Partager {files.length} fichier{files.length > 1 ? 's' : ''}</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-[#232730] rounded-lg transition-colors"
+            className="text-gray-400 hover:text-white"
           >
             <X className="w-5 h-5" />
           </button>
