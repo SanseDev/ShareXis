@@ -1,15 +1,16 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Upload, Share2 } from 'lucide-react'
+import { Upload, Share2, X, FileText, AlertCircle } from 'lucide-react'
 import Header from '../components/Header'
 import { useAuth } from '../contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import ShareFiles from '../components/ShareFiles'
+import Image from 'next/image'
 
 export default function Documents() {
   const router = useRouter()
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, deviceId } = useAuth()
   const [isDragging, setIsDragging] = useState(false)
   const [files, setFiles] = useState<File[]>([])
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)
@@ -45,77 +46,117 @@ export default function Documents() {
     }
   }
 
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B'
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB'
+    else return (bytes / 1048576).toFixed(1) + ' MB'
+  }
+
   return (
     <div className="min-h-screen bg-[#0f1117] text-white">
       <Header />
       <main className="p-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold">Partage de Fichiers</h1>
-          </div>
-          
-          {/* Zone de dépôt */}
-          <div
-            className={`border-2 border-dashed rounded-xl p-8 mb-8 text-center transition-colors
-              ${isDragging ? 'border-blue-500 bg-blue-500/10' : 'border-gray-600 hover:border-gray-500'}`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-          >
-            <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-            <p className="text-lg mb-2">
-              Glissez et déposez vos fichiers ici
-            </p>
-            <p className="text-sm text-gray-400 mb-4">
-              ou
-            </p>
-            <label className="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg cursor-pointer transition-colors">
-              Sélectionner des fichiers
-              <input
-                type="file"
-                multiple
-                className="hidden"
-                onChange={handleFileSelect}
-              />
-            </label>
-          </div>
-
-          {/* Liste des fichiers */}
-          {files.length > 0 && (
-            <div className="bg-[#1a1d24] rounded-xl p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold">Fichiers ({files.length})</h2>
-                <button
-                  onClick={() => setIsShareModalOpen(true)}
-                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors"
-                >
-                  <Share2 className="w-4 h-4" />
-                  Partager
-                </button>
-              </div>
-              <div className="space-y-3">
-                {files.map((file, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between bg-[#232730] p-4 rounded-lg"
-                  >
-                    <div>
-                      <p className="font-medium">{file.name}</p>
-                      <p className="text-sm text-gray-400">
-                        {(file.size / 1024 / 1024).toFixed(2)} MB
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setFiles(files.filter((_, i) => i !== index))}
-                      className="text-red-400 hover:text-red-300 px-3 py-1 rounded"
-                    >
-                      Supprimer
-                    </button>
-                  </div>
-                ))}
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold">Partage de Fichiers</h1>
+              <div className="px-3 py-1 rounded-full bg-gradient-to-r from-[#4d7cfe]/10 to-[#00c2ff]/10 text-[#4d7cfe] text-sm">
+                ID: {deviceId}
               </div>
             </div>
-          )}
+          </div>
+          
+          {/* Zone de dépôt principale */}
+          <div className="grid md:grid-cols-2 gap-8">
+            <div
+              className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 min-h-[400px] flex flex-col items-center justify-center
+                ${isDragging 
+                  ? 'border-[#4d7cfe] bg-gradient-to-r from-[#4d7cfe]/5 to-[#00c2ff]/5' 
+                  : 'border-gray-600 hover:border-gray-500'}`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="w-64 h-64 rounded-full bg-gradient-to-r from-[#4d7cfe]/5 to-[#00c2ff]/5 animate-pulse"></div>
+              </div>
+              
+              <Upload className="w-16 h-16 mx-auto mb-6 text-[#4d7cfe]" />
+              <p className="text-xl font-medium mb-3">
+                Glissez et déposez vos fichiers ici
+              </p>
+              <p className="text-gray-400 mb-6">
+                ou
+              </p>
+              <label className="bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] px-6 py-3 rounded-xl cursor-pointer transition-all duration-300 font-medium">
+                Sélectionner des fichiers
+                <input
+                  type="file"
+                  multiple
+                  className="hidden"
+                  onChange={handleFileSelect}
+                />
+              </label>
+              
+              <div className="mt-8 text-sm text-gray-400">
+                <p>Formats supportés : PDF, DOC, DOCX, XLS, XLSX, JPG, PNG</p>
+                <p>Taille maximale : 100 MB</p>
+              </div>
+            </div>
+
+            {/* Liste des fichiers */}
+            <div className="bg-[#1a1d24] rounded-xl p-6 border border-gray-800/30">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <FileText className="w-5 h-5 text-[#4d7cfe]" />
+                  <h2 className="text-xl font-semibold">Fichiers Sélectionnés</h2>
+                </div>
+                {files.length > 0 && (
+                  <button
+                    onClick={() => setIsShareModalOpen(true)}
+                    className="flex items-center gap-2 bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] px-4 py-2 rounded-lg transition-all duration-300"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Partager
+                  </button>
+                )}
+              </div>
+
+              {files.length === 0 ? (
+                <div className="text-center py-12 text-gray-400">
+                  <AlertCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>Aucun fichier sélectionné</p>
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+                  {files.map((file, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between bg-[#232730] p-4 rounded-xl group hover:bg-[#282d36] transition-all duration-300"
+                    >
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="w-10 h-10 bg-gradient-to-r from-[#4d7cfe]/10 to-[#00c2ff]/10 rounded-xl flex items-center justify-center">
+                          <FileText className="w-5 h-5 text-[#4d7cfe]" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">{file.name}</p>
+                          <p className="text-sm text-gray-400">
+                            {formatFileSize(file.size)}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setFiles(files.filter((_, i) => i !== index))}
+                        className="ml-4 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-500/10"
+                      >
+                        <X className="w-4 h-4 text-red-400" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
 
           {isShareModalOpen && (
             <ShareFiles

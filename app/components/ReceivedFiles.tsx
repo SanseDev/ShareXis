@@ -1,138 +1,110 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Download, FileIcon, Loader2 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
-import { getSharedFilesForRecipient } from '../services/dbService'
-
-interface SharedFile {
-  id: number
-  file_id: string
-  file_name: string
-  file_size: number
-  sender_id: string
-  created_at: string
-}
+import { Download, FileText, AlertCircle, Clock } from 'lucide-react'
+import { getSharedFilesForRecipient } from '../services/fileService'
 
 export default function ReceivedFiles() {
   const { deviceId } = useAuth()
-  const [files, setFiles] = useState<SharedFile[]>([])
+  const [files, setFiles] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [downloadingFile, setDownloadingFile] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    console.log('DeviceId actuel:', deviceId) // Debug
     loadFiles()
   }, [deviceId])
 
   const loadFiles = async () => {
-    if (!deviceId) {
-      console.log('Pas de deviceId disponible') // Debug
-      return
-    }
-
+    if (!deviceId) return
+    
     try {
-      console.log('Chargement des fichiers pour deviceId:', deviceId) // Debug
       const receivedFiles = await getSharedFilesForRecipient(deviceId)
-      console.log('Fichiers reçus:', receivedFiles) // Debug
       setFiles(receivedFiles || [])
-      console.log('État des fichiers mis à jour:', receivedFiles?.length || 0, 'fichiers') // Debug
     } catch (error) {
-      console.error('Erreur détaillée de chargement des fichiers:', error)
       setError('Impossible de charger les fichiers reçus')
+      console.error('Erreur de chargement:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleDownload = async (fileId: string) => {
-    setDownloadingFile(fileId)
-    try {
-      const response = await fetch(`/api/download/${fileId}`)
-      if (!response.ok) throw new Error('Erreur de téléchargement')
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B'
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB'
+    else return (bytes / 1048576).toFixed(1) + ' MB'
+  }
 
-      const blob = await response.blob()
-      const file = files.find(f => f.file_id === fileId)
-      
-      // Créer un lien de téléchargement
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = file?.file_name || 'fichier'
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
-    } catch (error) {
-      console.error('Erreur lors du téléchargement:', error)
-      setError('Impossible de télécharger le fichier')
-    } finally {
-      setDownloadingFile(null)
-    }
+  const getTimeAgo = (timestamp: string) => {
+    const date = new Date(timestamp)
+    const now = new Date()
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+
+    if (seconds < 60) return 'À l\'instant'
+    if (seconds < 3600) return `Il y a ${Math.floor(seconds / 60)} minutes`
+    if (seconds < 86400) return `Il y a ${Math.floor(seconds / 3600)} heures`
+    return `Il y a ${Math.floor(seconds / 86400)} jours`
   }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#4d7cfe]"></div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="bg-red-500/10 text-red-400 p-4 rounded-lg">
-        {error}
+      <div className="text-center py-12 text-red-400">
+        <AlertCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
+        <p>{error}</p>
       </div>
     )
   }
 
   if (files.length === 0) {
     return (
-      <div className="bg-[#1a1d24] rounded-xl p-8 text-center">
-        <FileIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-xl font-medium mb-2">Aucun fichier reçu</h3>
-        <p className="text-gray-400">
-          Les fichiers partagés avec votre ID apparaîtront ici
-        </p>
+      <div className="text-center py-12 text-gray-400">
+        <AlertCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
+        <p>Aucun fichier reçu pour le moment</p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
       {files.map((file) => (
         <div
-          key={file.file_id}
-          className="bg-[#1a1d24] rounded-xl p-4 flex items-center justify-between"
+          key={file.id}
+          className="bg-[#232730] p-4 rounded-xl group hover:bg-[#282d36] transition-all duration-300"
         >
-          <div className="flex items-center space-x-4">
-            <div className="bg-[#232730] p-3 rounded-lg">
-              <FileIcon className="w-6 h-6 text-blue-500" />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-[#4d7cfe]/10 to-[#00c2ff]/10 rounded-xl flex items-center justify-center">
+              <FileText className="w-5 h-5 text-[#4d7cfe]" />
             </div>
-            <div>
-              <h3 className="font-medium mb-1">{file.file_name}</h3>
-              <div className="flex items-center space-x-4 text-sm text-gray-400">
-                <span>{(file.file_size / 1024 / 1024).toFixed(2)} MB</span>
-                <span>•</span>
-                <span>De: {file.sender_id}</span>
-                <span>•</span>
-                <span>{new Date(file.created_at).toLocaleDateString()}</span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between mb-1">
+                <p className="font-medium truncate">{file.file_name}</p>
+                <span className="text-xs text-gray-400 flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  {getTimeAgo(file.created_at)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-gray-400">
+                  {formatFileSize(file.file_size)}
+                </p>
+                <a
+                  href={`/api/download/${file.file_id}`}
+                  className="flex items-center gap-2 text-sm text-[#4d7cfe] hover:text-[#3d6df0] transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  Télécharger
+                </a>
               </div>
             </div>
           </div>
-          <button
-            onClick={() => handleDownload(file.file_id)}
-            disabled={downloadingFile === file.file_id}
-            className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50"
-          >
-            {downloadingFile === file.file_id ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <Download className="w-5 h-5" />
-            )}
-          </button>
         </div>
       ))}
     </div>

@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid'
+import { supabase } from '../lib/supabase'
 
 interface UploadResponse {
   fileId: string
@@ -45,6 +46,26 @@ export async function shareFiles(files: File[], recipientId: string, senderId: s
     return results.map(result => result.fileId)
   } catch (error) {
     console.error('Erreur de partage:', error)
+    throw error
+  }
+}
+
+export const getSharedFilesForRecipient = async (recipientId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('shared_files')
+      .select('*')
+      .eq('recipient_id', recipientId)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Erreur lors de la récupération des fichiers:', error)
+      throw new Error('Impossible de récupérer les fichiers')
+    }
+
+    return data
+  } catch (error) {
+    console.error('Erreur détaillée:', error)
     throw error
   }
 } 
