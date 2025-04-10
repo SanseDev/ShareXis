@@ -36,16 +36,24 @@ export async function uploadFile(file: File, recipientId: string, senderId: stri
   }
 }
 
-export async function shareFiles(files: File[], recipientId: string, senderId: string): Promise<string[]> {
+export const shareFiles = async (files: File[], recipientId: string, senderId: string, senderName: string) => {
   try {
-    // Upload chaque fichier et obtenir les URLs sécurisées
-    const uploadPromises = files.map(file => uploadFile(file, recipientId, senderId))
-    const results = await Promise.all(uploadPromises)
+    for (const file of files) {
+      const fileId = crypto.randomUUID()
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('recipientId', recipientId)
+      formData.append('fileId', fileId)
+      formData.append('senderId', senderId)
+      formData.append('senderName', senderName)
 
-    // Retourner les IDs des fichiers partagés
-    return results.map(result => result.fileId)
+      await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      })
+    }
   } catch (error) {
-    console.error('Erreur de partage:', error)
+    console.error('Erreur lors du partage:', error)
     throw error
   }
 }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { Download, FileText, AlertCircle, Clock } from 'lucide-react'
+import { Download, FileText, AlertCircle, Clock, User } from 'lucide-react'
 import { getSharedFilesForRecipient } from '../services/fileService'
 
 export default function ReceivedFiles() {
@@ -91,17 +91,25 @@ export default function ReceivedFiles() {
                   {getTimeAgo(file.created_at)}
                 </span>
               </div>
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-400">
-                  {formatFileSize(file.file_size)}
-                </p>
-                <a
-                  href={`/api/download/${file.file_id}`}
-                  className="flex items-center gap-2 text-sm text-[#4d7cfe] hover:text-[#3d6df0] transition-colors"
-                >
-                  <Download className="w-4 h-4" />
-                  Télécharger
-                </a>
+              <div className="flex flex-col gap-1">
+                {file.sender_name && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <User className="w-4 h-4 text-[#4d7cfe]" />
+                    <span className="text-[#4d7cfe]">Expéditeur : {file.sender_name}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-gray-400">
+                    {formatFileSize(file.file_size)}
+                  </p>
+                  <a
+                    href={`/api/download/${file.file_id}`}
+                    className="flex items-center gap-2 text-sm text-[#4d7cfe] hover:text-[#3d6df0] transition-colors"
+                  >
+                    <Download className="w-4 h-4" />
+                    Télécharger
+                  </a>
+                </div>
               </div>
             </div>
           </div>

@@ -13,6 +13,7 @@ interface ShareFilesProps {
 export default function ShareFiles({ files, onClose }: ShareFilesProps) {
   const { deviceId } = useAuth()
   const [recipientId, setRecipientId] = useState('')
+  const [senderName, setSenderName] = useState('')
   const [error, setError] = useState('')
   const [isSharing, setIsSharing] = useState(false)
   const [showSuccessNotification, setShowSuccessNotification] = useState(false)
@@ -25,6 +26,11 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
 
     if (!recipientId.trim()) {
       setError('Veuillez entrer un ID d\'appareil')
+      return
+    }
+
+    if (!senderName.trim()) {
+      setError('Veuillez entrer votre nom')
       return
     }
 
@@ -42,7 +48,7 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
     setError('')
 
     try {
-      await shareFiles(files, recipientId, deviceId)
+      await shareFiles(files, recipientId, deviceId, senderName)
       setShowSuccessNotification(true)
       setTimeout(() => {
         onClose()
@@ -76,40 +82,38 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
 
         <div className="space-y-4">
           <div>
+            <label className="block text-sm text-gray-400 mb-1">Votre nom</label>
+            <input
+              type="text"
+              value={senderName}
+              onChange={(e) => setSenderName(e.target.value)}
+              placeholder="Entrez votre nom"
+              className="w-full px-4 py-2 bg-[#232730] rounded-lg border border-gray-700 focus:border-[#4d7cfe] focus:outline-none"
+            />
+          </div>
+
+          <div>
             <label className="block text-sm text-gray-400 mb-1">ID de l'appareil destinataire</label>
             <input
               type="text"
               value={recipientId}
               onChange={(e) => setRecipientId(e.target.value)}
               placeholder="Entrez l'ID à 8 caractères"
-              className="w-full px-4 py-2 bg-[#232730] rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none"
+              className="w-full px-4 py-2 bg-[#232730] rounded-lg border border-gray-700 focus:border-[#4d7cfe] focus:outline-none"
               maxLength={8}
             />
-            {error && (
-              <p className="text-red-400 text-sm mt-1 bg-red-400/10 p-2 rounded">
-                {error}
-              </p>
-            )}
           </div>
 
-          <div className="bg-[#232730] rounded-lg p-4">
-            <h3 className="text-sm text-gray-400 mb-3">Fichiers à partager</h3>
-            <ul className="space-y-2">
-              {files.map((file, index) => (
-                <li key={index} className="text-sm flex justify-between items-center">
-                  <span className="truncate">{file.name}</span>
-                  <span className="text-gray-400 ml-2">
-                    {(file.size / 1024 / 1024).toFixed(2)} MB
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {error && (
+            <p className="text-red-400 text-sm bg-red-400/10 p-2 rounded">
+              {error}
+            </p>
+          )}
 
           <button
             onClick={handleShare}
             disabled={isSharing}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors"
+            className="w-full bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-all duration-300"
           >
             <Send className="w-4 h-4" />
             {isSharing ? 'Envoi en cours...' : 'Envoyer les fichiers'}

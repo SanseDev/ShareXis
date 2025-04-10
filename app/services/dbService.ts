@@ -8,6 +8,7 @@ interface FileMetadata {
   recipient_id: string
   encryption_key: string
   sender_id: string
+  sender_name: string
   created_at: string
 }
 
@@ -16,14 +17,22 @@ export async function saveFileMetadata(metadata: Omit<FileMetadata, 'id' | 'crea
     console.log('Sauvegarde des métadonnées:', metadata) // Debug
     const { data, error } = await supabase
       .from('shared_files')
-      .insert([metadata])
+      .insert([{
+        file_id: metadata.file_id,
+        file_name: metadata.file_name,
+        file_size: metadata.file_size,
+        recipient_id: metadata.recipient_id,
+        encryption_key: metadata.encryption_key,
+        sender_id: metadata.sender_id,
+        sender_name: metadata.sender_name
+      }])
       .select()
-      .single()
 
     if (error) {
       console.error('Erreur Supabase:', error) // Debug détaillé
       throw error
     }
+    console.log('Métadonnées sauvegardées:', data) // Debug
     return data
   } catch (error) {
     console.error('Erreur lors de la sauvegarde des métadonnées:', error)
@@ -44,7 +53,7 @@ export async function getSharedFilesForRecipient(recipientId: string) {
       console.error('Erreur Supabase:', error) // Debug détaillé
       throw error
     }
-    console.log('Fichiers trouvés:', data) // Debug
+    console.log('Fichiers trouvés (détails):', JSON.stringify(data, null, 2)) // Debug détaillé des données
     return data
   } catch (error) {
     console.error('Erreur lors de la récupération des fichiers:', error)

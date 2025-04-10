@@ -11,10 +11,11 @@ export async function POST(request: NextRequest) {
     const recipientId = formData.get('recipientId') as string
     const fileId = formData.get('fileId') as string
     const senderId = formData.get('senderId') as string
+    const senderName = formData.get('senderName') as string
 
-    if (!file || !recipientId || !fileId || !senderId) {
+    if (!file || !recipientId || !fileId || !senderId || !senderName) {
       return NextResponse.json(
-        { error: 'Fichier, ID destinataire, ID fichier et ID expéditeur requis' },
+        { error: 'Fichier, ID destinataire, ID fichier, ID expéditeur et nom de l\'expéditeur requis' },
         { status: 400 }
       )
     }
@@ -41,7 +42,8 @@ export async function POST(request: NextRequest) {
       file_size: file.size,
       recipient_id: recipientId,
       encryption_key: encryptionKey,
-      sender_id: senderId
+      sender_id: senderId,
+      sender_name: senderName
     })
 
     return NextResponse.json({
