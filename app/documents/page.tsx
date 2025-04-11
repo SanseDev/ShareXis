@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Upload, Share2, X, FileText, AlertCircle } from 'lucide-react'
+import { Upload, Share2, X, FileText, AlertCircle, Lock } from 'lucide-react'
 import Header from '../components/Header'
 import { useAuth } from '../contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import ShareFiles from '../components/ShareFiles'
+import UserLimitsDisplay from '../components/UserLimitsDisplay'
 import Image from 'next/image'
 
 export default function Documents() {
@@ -14,6 +15,7 @@ export default function Documents() {
   const [isDragging, setIsDragging] = useState(false)
   const [files, setFiles] = useState<File[]>([])
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)
+  const [isLimitReached, setIsLimitReached] = useState(false)
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -23,7 +25,9 @@ export default function Documents() {
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault()
-    setIsDragging(true)
+    if (!isLimitReached) {
+      setIsDragging(true)
+    }
   }
 
   const handleDragLeave = (e: React.DragEvent) => {
@@ -35,12 +39,16 @@ export default function Documents() {
     e.preventDefault()
     setIsDragging(false)
     
+    if (isLimitReached) {
+      return
+    }
+    
     const droppedFiles = Array.from(e.dataTransfer.files)
     setFiles(prevFiles => [...prevFiles, ...droppedFiles])
   }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
+    if (e.target.files && !isLimitReached) {
       const selectedFiles = Array.from(e.target.files)
       setFiles(prevFiles => [...prevFiles, ...selectedFiles])
     }
@@ -50,6 +58,10 @@ export default function Documents() {
     if (bytes < 1024) return bytes + ' B'
     else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB'
     else return (bytes / 1048576).toFixed(1) + ' MB'
+  }
+
+  const handleLimitReached = () => {
+    setIsLimitReached(true)
   }
 
   return (
@@ -66,42 +78,71 @@ export default function Documents() {
             </div>
           </div>
           
+          {/* Affichage des limites */}
+          {deviceId && (
+            <div className="mb-8">
+              <UserLimitsDisplay userId={deviceId} onLimitReached={handleLimitReached} />
+            </div>
+          )}
+          
           {/* Zone de dépôt principale */}
           <div className="grid md:grid-cols-2 gap-8">
             <div
               className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 min-h-[400px] flex flex-col items-center justify-center
                 ${isDragging 
                   ? 'border-[#4d7cfe] bg-gradient-to-r from-[#4d7cfe]/5 to-[#00c2ff]/5' 
-                  : 'border-gray-600 hover:border-gray-500'}`}
+                  : isLimitReached
+                    ? 'border-red-500/50 bg-red-500/5 cursor-not-allowed'
+                    : 'border-gray-600 hover:border-gray-500'}`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
             >
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-64 h-64 rounded-full bg-gradient-to-r from-[#4d7cfe]/5 to-[#00c2ff]/5 animate-pulse"></div>
-              </div>
-              
-              <Upload className="w-16 h-16 mx-auto mb-6 text-[#4d7cfe]" />
-              <p className="text-xl font-medium mb-3">
-                Glissez et déposez vos fichiers ici
-              </p>
-              <p className="text-gray-400 mb-6">
-                ou
-              </p>
-              <label className="bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] px-6 py-3 rounded-xl cursor-pointer transition-all duration-300 font-medium">
-                Sélectionner des fichiers
-                <input
-                  type="file"
-                  multiple
-                  className="hidden"
-                  onChange={handleFileSelect}
-                />
-              </label>
-              
-              <div className="mt-8 text-sm text-gray-400">
-                <p>Formats supportés : PDF, DOC, DOCX, XLS, XLSX, JPG, PNG</p>
-                <p>Taille maximale : 100 MB</p>
-              </div>
+              {isLimitReached ? (
+                <div className="flex flex-col items-center justify-center">
+                  <Lock className="w-16 h-16 mx-auto mb-6 text-red-500" />
+                  <p className="text-xl font-medium mb-3 text-red-400">
+                    Limite quotidienne atteinte
+                  </p>
+                  <p className="text-gray-400 mb-6">
+                    Vous avez atteint votre limite de partages pour aujourd'hui
+                  </p>
+                  <button 
+                    onClick={() => router.push('/pricing')}
+                    className="bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] px-6 py-3 rounded-xl transition-all duration-300 font-medium"
+                  >
+                    Passer à un plan supérieur
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="w-64 h-64 rounded-full bg-gradient-to-r from-[#4d7cfe]/5 to-[#00c2ff]/5 animate-pulse"></div>
+                  </div>
+                  
+                  <Upload className="w-16 h-16 mx-auto mb-6 text-[#4d7cfe]" />
+                  <p className="text-xl font-medium mb-3">
+                    Glissez et déposez vos fichiers ici
+                  </p>
+                  <p className="text-gray-400 mb-6">
+                    ou
+                  </p>
+                  <label className="bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] px-6 py-3 rounded-xl cursor-pointer transition-all duration-300 font-medium">
+                    Sélectionner des fichiers
+                    <input
+                      type="file"
+                      multiple
+                      className="hidden"
+                      onChange={handleFileSelect}
+                    />
+                  </label>
+                  
+                  <div className="mt-8 text-sm text-gray-400">
+                    <p>Formats supportés : PDF, DOC, DOCX, XLS, XLSX, JPG, PNG</p>
+                    <p>Taille maximale : 100 MB</p>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Liste des fichiers */}
@@ -111,7 +152,7 @@ export default function Documents() {
                   <FileText className="w-5 h-5 text-[#4d7cfe]" />
                   <h2 className="text-xl font-semibold">Fichiers Sélectionnés</h2>
                 </div>
-                {files.length > 0 && (
+                {files.length > 0 && !isLimitReached && (
                   <button
                     onClick={() => setIsShareModalOpen(true)}
                     className="flex items-center gap-2 bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] px-4 py-2 rounded-lg transition-all duration-300"
