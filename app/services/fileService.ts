@@ -38,14 +38,28 @@ export async function uploadFile(file: File, recipientId: string, senderId: stri
   }
 }
 
-export const shareFiles = async (files: File[], recipientId: string, senderId: string) => {
+export const shareFiles = async (files: File[], recipientId: string, senderId: string, senderName: string) => {
   try {
+    console.log('Début du partage des fichiers:', { filesCount: files.length, recipientId, senderId, senderName })
+    
+    // Vérifier l'authentification locale
+    if (!senderId) {
+      throw new Error('Vous devez être connecté pour partager des fichiers')
+    }
+
+    if (!senderName) {
+      throw new Error('Le nom de l\'expéditeur est requis')
+    }
+
     // Vérifier l'abonnement de l'utilisateur
     const subscription = await getUserSubscription(senderId)
+    console.log('Abonnement utilisateur:', subscription)
     const planLimits = getPlanLimits(subscription?.plan || 'free')
+    console.log('Limites du plan:', planLimits)
 
     // Vérifier la taille des fichiers
     for (const file of files) {
+      console.log('Vérification du fichier:', { name: file.name, size: file.size, type: file.type })
       if (file.size > planLimits.MAX_FILE_SIZE) {
         throw new Error(`Le fichier ${file.name} dépasse la taille maximale autorisée (${planLimits.MAX_FILE_SIZE / (1024 * 1024 * 1024)} GB)`)
       }
@@ -62,6 +76,8 @@ export const shareFiles = async (files: File[], recipientId: string, senderId: s
         .eq('sender_id', senderId)
         .gte('created_at', today.toISOString())
 
+      console.log('Vérification des limites quotidiennes:', { count, error })
+
       if (error) {
         console.error('Erreur lors de la vérification des limites quotidiennes:', error)
         throw new Error('Erreur lors de la vérification des limites quotidiennes')
@@ -73,18 +89,34 @@ export const shareFiles = async (files: File[], recipientId: string, senderId: s
     }
 
     // Uploader les fichiers
+    console.log('Début de l\'upload des fichiers vers Supabase')
     const uploadedFiles = await Promise.all(
       files.map(async (file) => {
         const fileId = crypto.randomUUID()
+        console.log('Tentative d\'upload du fichier:', { fileId, fileName: file.name })
+        
+        // Vérifier que le bucket existe
+        const { data: buckets, error: bucketsError } = await supabase
+          .storage
+          .listBuckets()
+        
+        console.log('Buckets disponibles:', buckets)
+        
+        if (bucketsError) {
+          console.error('Erreur lors de la vérification des buckets:', bucketsError)
+          throw new Error('Erreur lors de la vérification des buckets')
+        }
+
         const { error: uploadError } = await supabase.storage
-          .from('files')
+          .from('shared-files')
           .upload(`${fileId}/${file.name}`, file)
 
         if (uploadError) {
-          console.error(`Erreur lors de l'upload du fichier ${file.name}:`, uploadError)
-          throw new Error(`Erreur lors de l'upload du fichier ${file.name}`)
+          console.error('Erreur détaillée Supabase:', uploadError)
+          throw new Error(`Erreur lors de l'upload du fichier ${file.name}: ${uploadError.message}`)
         }
 
+        console.log('Fichier uploadé avec succès:', { fileId, fileName: file.name })
         return {
           file_id: fileId,
           file_name: file.name,
@@ -95,22 +127,38 @@ export const shareFiles = async (files: File[], recipientId: string, senderId: s
     )
 
     // Créer les entrées dans la base de données
-    const { error: dbError } = await supabase
+    console.log('Données à insérer:', uploadedFiles.map(file => ({
+      ...file,
+      sender_id: senderId,
+      sender_name: senderName,
+      recipient_id: recipientId,
+      created_at: new Date().toISOString(),
+      expires_at: new Date(Date.now() + (planLimits.STORAGE_DAYS * 24 * 60 * 60 * 1000)).toISOString()
+    })))
+
+    const { data: insertedData, error: dbError } = await supabase
       .from('shared_files')
       .insert(
         uploadedFiles.map(file => ({
-          ...file,
+          file_id: file.file_id,
+          file_name: file.file_name,
+          file_size: file.file_size,
+          file_type: file.file_type,
           sender_id: senderId,
+          sender_name: senderName,
           recipient_id: recipientId,
           created_at: new Date().toISOString(),
           expires_at: new Date(Date.now() + (planLimits.STORAGE_DAYS * 24 * 60 * 60 * 1000)).toISOString()
         }))
       )
+      .select()
 
     if (dbError) {
-      console.error('Erreur lors de l\'enregistrement des fichiers:', dbError)
-      throw new Error('Erreur lors de l\'enregistrement des fichiers')
+      console.error('Erreur détaillée lors de l\'enregistrement des fichiers:', dbError)
+      throw new Error(`Erreur lors de l'enregistrement des fichiers: ${dbError.message || 'Erreur inconnue'}`)
     }
+
+    console.log('Fichiers enregistrés avec succès:', insertedData)
 
     return uploadedFiles
   } catch (error) {
@@ -163,7 +211,7 @@ export const deleteSharedFile = async (fileId: string, userId: string) => {
 
     // Supprimer le fichier du stockage
     const { error: storageError } = await supabase.storage
-      .from('files')
+      .from('shared-files')
       .remove([`${fileId}/${file.file_name}`])
 
     if (storageError) {
