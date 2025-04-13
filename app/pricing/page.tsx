@@ -1,9 +1,23 @@
 'use client'
 
+import { useState } from 'react'
 import Header from '../components/Header'
 import { Check } from 'lucide-react'
+import PaymentModal from '../components/PaymentModal'
 
 export default function Pricing() {
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState<{
+    name: string
+    price: number
+    interval: string
+  } | null>(null)
+
+  const handlePlanSelection = (plan: { name: string; price: number; interval: string }) => {
+    setSelectedPlan(plan)
+    setIsPaymentModalOpen(true)
+  }
+
   return (
     <div className="min-h-screen bg-[#0f1117] text-white">
       <Header />
@@ -53,7 +67,10 @@ export default function Pricing() {
                 </li>
               </ul>
 
-              <button className="w-full py-3 rounded-xl border-2 border-[#4d7cfe] text-[#4d7cfe] hover:bg-[#4d7cfe] hover:text-white transition-all duration-300">
+              <button 
+                onClick={() => handlePlanSelection({ name: 'Gratuit', price: 0, interval: 'mois' })}
+                className="w-full py-3 rounded-xl border-2 border-[#4d7cfe] text-[#4d7cfe] hover:bg-[#4d7cfe] hover:text-white transition-all duration-300"
+              >
                 Commencer
               </button>
             </div>
@@ -96,7 +113,10 @@ export default function Pricing() {
                 </li>
               </ul>
 
-              <button className="w-full py-3 rounded-xl bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] text-white transition-all duration-300">
+              <button 
+                onClick={() => handlePlanSelection({ name: 'Pro', price: 9.99, interval: 'mois' })}
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] text-white transition-all duration-300"
+              >
                 Commencer l'essai gratuit
               </button>
             </div>
@@ -139,13 +159,24 @@ export default function Pricing() {
                 </li>
               </ul>
 
-              <button className="w-full py-3 rounded-xl bg-[#232730] hover:bg-[#282d36] text-white transition-all duration-300">
+              <button 
+                onClick={() => handlePlanSelection({ name: 'Entreprise', price: 29.99, interval: 'mois' })}
+                className="w-full py-3 rounded-xl bg-[#232730] hover:bg-[#282d36] text-white transition-all duration-300"
+              >
                 Contacter les ventes
               </button>
             </div>
           </div>
         </div>
       </main>
+
+      {selectedPlan && (
+        <PaymentModal
+          isOpen={isPaymentModalOpen}
+          onClose={() => setIsPaymentModalOpen(false)}
+          plan={selectedPlan}
+        />
+      )}
     </div>
   )
 } 
