@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js'
 import { X } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -20,10 +21,13 @@ interface PaymentModalProps {
 export default function PaymentModal({ isOpen, onClose, plan }: PaymentModalProps) {
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'paypal' | 'crypto'>('card')
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   const handleStripePayment = async () => {
     try {
       setIsLoading(true)
+      setError(null)
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
@@ -42,12 +46,19 @@ export default function PaymentModal({ isOpen, onClose, plan }: PaymentModalProp
 
       if (error) {
         console.error('Erreur Stripe:', error)
+        setError('Une erreur est survenue lors du paiement. Veuillez réessayer.')
       }
     } catch (error) {
       console.error('Erreur lors du paiement:', error)
+      setError('Une erreur est survenue lors du paiement. Veuillez réessayer.')
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handlePaymentSuccess = () => {
+    onClose()
+    router.push('/success')
   }
 
   if (!isOpen) return null
@@ -64,6 +75,12 @@ export default function PaymentModal({ isOpen, onClose, plan }: PaymentModalProp
 
         <h2 className="text-2xl font-bold mb-6">Paiement - {plan.name}</h2>
         
+        {error && (
+          <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500">
+            {error}
+          </div>
+        )}
+
         <div className="mb-6">
           <p className="text-gray-400 mb-2">Choisissez votre méthode de paiement :</p>
           <div className="grid grid-cols-3 gap-4">
@@ -131,10 +148,19 @@ export default function PaymentModal({ isOpen, onClose, plan }: PaymentModalProp
               }}
               onApprove={async (data, actions) => {
                 if (actions.order) {
-                  const order = await actions.order.capture()
-                  console.log('Paiement PayPal réussi:', order)
-                  // Gérer le succès du paiement
+                  try {
+                    const order = await actions.order.capture()
+                    console.log('Paiement PayPal réussi:', order)
+                    handlePaymentSuccess()
+                  } catch (error) {
+                    console.error('Erreur lors de la capture du paiement PayPal:', error)
+                    setError('Une erreur est survenue lors du paiement. Veuillez réessayer.')
+                  }
                 }
+              }}
+              onError={(err) => {
+                console.error('Erreur PayPal:', err)
+                setError('Une erreur est survenue lors du paiement. Veuillez réessayer.')
               }}
               style={{ layout: "vertical" }}
             />

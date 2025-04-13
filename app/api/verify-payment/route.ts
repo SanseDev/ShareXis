@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { createSubscription } from '../../utils/subscription'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-03-31.basil',
@@ -26,18 +27,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Ici, vous pouvez mettre à jour votre base de données pour activer l'abonnement
-    // Par exemple, avec Supabase :
-    // await supabase
-    //   .from('subscriptions')
-    //   .insert({
-    //     user_id: session.client_reference_id,
-    //     plan: session.metadata.plan,
-    //     status: 'active',
-    //     stripe_subscription_id: session.subscription,
-    //   })
+    // Créer l'abonnement dans la base de données
+    const subscription = await createSubscription(
+      session.client_reference_id!,
+      session.metadata?.plan as 'free' | 'pro' | 'enterprise',
+      session.subscription as string
+    )
 
-    return NextResponse.json({ success: true })
+    if (!subscription) {
+      return NextResponse.json(
+        { error: 'Erreur lors de la création de l\'abonnement' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({ success: true, subscription })
   } catch (error) {
     console.error('Erreur lors de la vérification du paiement:', error)
     return NextResponse.json(
