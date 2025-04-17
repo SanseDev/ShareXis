@@ -1,21 +1,26 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { Download, FileText, AlertCircle, Clock, User } from 'lucide-react'
 import { getSharedFilesForRecipient } from '../services/fileService'
 
+interface SharedFile {
+  id: string
+  file_id: string
+  file_name: string
+  file_size: number
+  created_at: string
+  sender_name?: string
+}
+
 export default function ReceivedFiles() {
   const { deviceId } = useAuth()
-  const [files, setFiles] = useState<any[]>([])
+  const [files, setFiles] = useState<SharedFile[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    loadFiles()
-  }, [deviceId])
-
-  const loadFiles = async () => {
+  const loadFiles = useCallback(async () => {
     if (!deviceId) return
     
     try {
@@ -27,7 +32,11 @@ export default function ReceivedFiles() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [deviceId])
+
+  useEffect(() => {
+    loadFiles()
+  }, [loadFiles])
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + ' B'

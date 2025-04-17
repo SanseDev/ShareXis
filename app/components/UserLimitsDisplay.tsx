@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { AlertCircle, Lock, RefreshCw } from 'lucide-react'
 import { getUserLimitsState, UserLimitsState } from '../utils/userLimits'
 import { FREE_PLAN_LIMITS } from '../utils/limits'
@@ -11,17 +11,21 @@ interface UserLimitsDisplayProps {
   onLimitReached?: () => void
 }
 
+type PlanType = 'free' | 'pro' | 'enterprise'
+
+interface Subscription {
+  plan: PlanType
+  status?: string
+  expiresAt?: string
+}
+
 export default function UserLimitsDisplay({ userId, onLimitReached }: UserLimitsDisplayProps) {
   const [limitsState, setLimitsState] = useState<UserLimitsState | null>(null)
-  const [subscription, setSubscription] = useState<any>(null)
+  const [subscription, setSubscription] = useState<Subscription | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    loadData()
-  }, [userId])
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!userId) return
     
     setLoading(true)
@@ -34,7 +38,7 @@ export default function UserLimitsDisplay({ userId, onLimitReached }: UserLimits
       ])
       
       setLimitsState(state)
-      setSubscription(userSubscription)
+      setSubscription(userSubscription as Subscription)
       
       if (state.isLimitReached && onLimitReached) {
         onLimitReached()
@@ -45,7 +49,11 @@ export default function UserLimitsDisplay({ userId, onLimitReached }: UserLimits
     } finally {
       setLoading(false)
     }
-  }
+  }, [userId, onLimitReached])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
   if (loading) {
     return (

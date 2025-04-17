@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Header from '../components/Header'
 import { Check } from 'lucide-react'
 
-export default function Success() {
+function SuccessContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
@@ -88,5 +88,17 @@ export default function Success() {
         </div>
       </main>
     </div>
+  )
+}
+
+export default function Success() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#0f1117] text-white flex items-center justify-center">
+        <div className="w-16 h-16 border-4 border-[#4d7cfe] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }>
+      <SuccessContent />
+    </Suspense>
   )
 } 

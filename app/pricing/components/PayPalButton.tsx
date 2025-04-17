@@ -1,10 +1,29 @@
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { useRouter } from "next/navigation";
 
+interface PayPalError {
+  message: string;
+  code?: string;
+  details?: Array<{
+    field?: string;
+    issue?: string;
+    location?: string;
+  }>;
+}
+
 interface PayPalButtonProps {
   amount: number;
   onSuccess?: () => void;
-  onError?: (error: any) => void;
+  onError?: (error: PayPalError) => void;
+}
+
+function isPayPalError(error: unknown): error is PayPalError {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as PayPalError).message === 'string'
+  );
 }
 
 export default function PayPalButton({ amount, onSuccess, onError }: PayPalButtonProps) {
@@ -44,7 +63,11 @@ export default function PayPalButton({ amount, onSuccess, onError }: PayPalButto
         }}
         onError={(err) => {
           console.error("Erreur PayPal:", err);
-          onError?.(err);
+          if (isPayPalError(err)) {
+            onError?.(err);
+          } else {
+            onError?.({ message: 'Une erreur inattendue est survenue' });
+          }
         }}
       />
     </PayPalScriptProvider>

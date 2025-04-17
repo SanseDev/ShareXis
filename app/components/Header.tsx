@@ -1,13 +1,11 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { useAuth } from '../contexts/AuthContext'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Inbox, FileText, Crown } from 'lucide-react'
 
 export default function Header() {
-  const router = useRouter()
   const { deviceId } = useAuth()
 
   return (

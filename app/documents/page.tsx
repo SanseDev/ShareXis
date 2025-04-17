@@ -7,7 +7,6 @@ import { useAuth } from '../contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import ShareFiles from '../components/ShareFiles'
 import UserLimitsDisplay from '../components/UserLimitsDisplay'
-import Image from 'next/image'
 
 export default function Documents() {
   const router = useRouter()
@@ -105,7 +104,7 @@ export default function Documents() {
                     Limite quotidienne atteinte
                   </p>
                   <p className="text-gray-400 mb-6">
-                    Vous avez atteint votre limite de partages pour aujourd'hui
+                    Vous avez atteint votre limite de partages pour aujourd&apos;hui
                   </p>
                   <button 
                     onClick={() => router.push('/pricing')}

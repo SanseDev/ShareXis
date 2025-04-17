@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { generateEncryptionKey, encrypt, hashRecipientId } from '../../utils/encryption'
+import { generateEncryptionKey, encrypt } from '../../utils/encryption'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { saveFileMetadata } from '../../services/dbService'

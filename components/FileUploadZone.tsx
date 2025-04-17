@@ -1,5 +1,6 @@
 'use client';
 
+/* eslint-disable jsx-a11y/alt-text */
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';

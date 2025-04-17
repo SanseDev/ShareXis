@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { checkFileExpiration } from '../../../utils/limits'
 import { unlink } from 'fs/promises'
 import { join } from 'path'
 import { supabase } from '../../../lib/supabase'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Vérifier et supprimer les fichiers expirés de la base de données
     await checkFileExpiration()

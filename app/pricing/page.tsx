@@ -51,7 +51,7 @@ export default function Pricing() {
               <ul className="space-y-4 mb-8">
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
-                  <span>Jusqu'à 100 MB par fichier</span>
+                  <span>Jusqu&apos;à 100 MB par fichier</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
@@ -93,7 +93,7 @@ export default function Pricing() {
               <ul className="space-y-4 mb-8">
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
-                  <span>Jusqu'à 5 GB par fichier</span>
+                  <span>Jusqu&apos;à 5 GB par fichier</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
@@ -117,7 +117,7 @@ export default function Pricing() {
                 onClick={() => handlePlanSelection({ name: 'Pro', price: 9.99, interval: 'mois' })}
                 className="w-full py-3 rounded-xl bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] text-white transition-all duration-300"
               >
-                Commencer l'essai gratuit
+                Commencer l&apos;essai gratuit
               </button>
             </div>
 
@@ -135,7 +135,7 @@ export default function Pricing() {
               <ul className="space-y-4 mb-8">
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
-                  <span>Jusqu'à 20 GB par fichier</span>
+                  <span>Jusqu&apos;à 20 GB par fichier</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />

@@ -1,18 +1,39 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../contexts/AuthContext'
 import Header from '../components/Header'
 import { Inbox, Download, FileText, AlertCircle, ExternalLink, User, Clock } from 'lucide-react'
 import { getSharedFilesForRecipient } from '../services/fileService'
 
+interface SharedFile {
+  id: string
+  file_id: string
+  file_name: string
+  file_size: number
+  created_at: string
+  sender_name?: string
+}
+
 export default function ReceivedPage() {
   const router = useRouter()
-  const { isAuthenticated, deviceId } = useAuth()
+  const { deviceId } = useAuth()
   const [isLoading, setIsLoading] = useState(true)
-  const [files, setFiles] = useState<any[]>([])
+  const [files, setFiles] = useState<SharedFile[]>([])
   const [error, setError] = useState<string | null>(null)
+
+  const loadFiles = useCallback(async () => {
+    if (!deviceId) return
+    try {
+      const receivedFiles = await getSharedFilesForRecipient(deviceId)
+      console.log('Fichiers reçus (détails):', JSON.stringify(receivedFiles, null, 2))
+      setFiles(receivedFiles || [])
+    } catch (error) {
+      setError('Impossible de charger les fichiers reçus')
+      console.error('Erreur de chargement:', error)
+    }
+  }, [deviceId])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -29,19 +50,7 @@ export default function ReceivedPage() {
     if (deviceId) {
       loadFiles()
     }
-  }, [deviceId])
-
-  const loadFiles = async () => {
-    if (!deviceId) return
-    try {
-      const receivedFiles = await getSharedFilesForRecipient(deviceId)
-      console.log('Fichiers reçus (détails):', JSON.stringify(receivedFiles, null, 2))
-      setFiles(receivedFiles || [])
-    } catch (error) {
-      setError('Impossible de charger les fichiers reçus')
-      console.error('Erreur de chargement:', error)
-    }
-  }
+  }, [deviceId, loadFiles])
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + ' B'

@@ -1,5 +1,6 @@
 'use client';
 
+/* eslint-disable jsx-a11y/alt-text */
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { FileIcon, Trash2, Download, Image, Video, FileText } from 'lucide-react';
 import { useState } from 'react';

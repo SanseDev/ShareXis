@@ -4,16 +4,16 @@ import { decrypt } from '../../../utils/encryption'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { fileId: string } }
-) {
+export async function GET(request: NextRequest) {
   try {
-    // Attendre et vérifier que fileId est disponible
-    if (!params?.fileId) {
+    // Extraire fileId de l'URL
+    const url = new URL(request.url)
+    const fileId = url.pathname.split('/').pop()
+    
+    // Vérifier que fileId est disponible
+    if (!fileId) {
       return NextResponse.json({ error: 'ID de fichier manquant' }, { status: 400 })
     }
-    const fileId = params.fileId
 
     // Récupérer les métadonnées du fichier depuis Supabase
     const { data: fileData, error } = await supabase

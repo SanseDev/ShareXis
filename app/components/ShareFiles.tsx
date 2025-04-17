@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Send, X, AlertCircle, Lock } from 'lucide-react'
 import { shareFiles } from '../services/fileService'
 import { useAuth } from '../contexts/AuthContext'
@@ -10,6 +10,10 @@ import { getUserLimitsState } from '../utils/userLimits'
 interface ShareFilesProps {
   files: File[]
   onClose: () => void
+}
+
+interface ShareError extends Error {
+  message: string
 }
 
 export default function ShareFiles({ files, onClose }: ShareFilesProps) {
@@ -22,11 +26,7 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
   const [isLimitReached, setIsLimitReached] = useState(false)
   const [isCheckingLimits, setIsCheckingLimits] = useState(true)
 
-  useEffect(() => {
-    checkLimits()
-  }, [deviceId])
-
-  const checkLimits = async () => {
+  const checkLimits = useCallback(async () => {
     if (!deviceId) return
     
     try {
@@ -37,7 +37,11 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
     } finally {
       setIsCheckingLimits(false)
     }
-  }
+  }, [deviceId])
+
+  useEffect(() => {
+    checkLimits()
+  }, [checkLimits])
 
   const handleShare = async () => {
     if (!deviceId) {
@@ -89,9 +93,10 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
       setTimeout(() => {
         onClose()
       }, 2000)
-    } catch (error: any) {
-      console.error('Erreur détaillée:', error)
-      setError(error.message || 'Une erreur est survenue lors du partage des fichiers')
+    } catch (error) {
+      const shareError = error as ShareError
+      console.error('Erreur détaillée:', shareError)
+      setError(shareError.message || 'Une erreur est survenue lors du partage des fichiers')
     } finally {
       setIsSharing(false)
     }
@@ -134,7 +139,7 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
               <Lock className="w-5 h-5" />
               <div>
                 <p className="font-medium">Limite quotidienne atteinte</p>
-                <p className="text-sm">Vous avez atteint votre limite de {FREE_PLAN_LIMITS.DAILY_SHARES} partages pour aujourd'hui</p>
+                <p className="text-sm">Vous avez atteint votre limite de {FREE_PLAN_LIMITS.DAILY_SHARES} partages pour aujourd&apos;hui</p>
               </div>
             </div>
             
@@ -159,7 +164,7 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
             </div>
 
             <div>
-              <label className="block text-sm text-gray-400 mb-1">ID de l'appareil destinataire</label>
+              <label className="block text-sm text-gray-400 mb-1">ID de l&apos;appareil destinataire</label>
               <input
                 type="text"
                 value={recipientId}
