@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '../../../lib/supabase'
-import { decrypt, generateEncryptionKey } from '../../../utils/encryption'
+import { decrypt } from '../../../utils/encryption'
 import { readFile, writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 
@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
         encryptedBuffer = await readFile(filePath)
         console.log('Fichier chiffré lu avec succès depuis le système de fichiers local')
       } catch (localError) {
-        console.log('Fichier non trouvé localement, tentative de récupération depuis Supabase Storage...')
+        console.log('Fichier non trouvé localement, tentative de récupération depuis Supabase Storage...', localError)
         
         // Si le fichier n'existe pas localement, essayer de le récupérer depuis Supabase Storage
         const { data: storageData, error: storageError } = await supabase.storage
