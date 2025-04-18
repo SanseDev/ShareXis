@@ -17,6 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "ShareXis - Partage de fichiers simple et sécurisé",
   description: "Partagez vos fichiers facilement et en toute sécurité avec ShareXis",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
 };
 
 export default function RootLayout({
