@@ -132,13 +132,13 @@ export async function GET(request: NextRequest) {
       // Déchiffrer le fichier
       console.log('Début du déchiffrement...')
       const decryptedBuffer = decrypt(encryptedBuffer, fileData.encryption_key)
-      console.log('Fichier déchiffré avec succès, taille:', decryptedBuffer.length)
+      console.log('File decrypted successfully, size:', decryptedBuffer.length)
 
-      // Encoder le nom du fichier pour éviter les problèmes de caractères spéciaux
+      // Encode filename to avoid special character issues
       const encodedFilename = encodeURIComponent(fileData.file_name)
 
-      // Renvoyer le fichier déchiffré
-      console.log('Envoi du fichier au client...')
+      // Return decrypted file
+      console.log('Sending file to client...')
       return new NextResponse(Buffer.from(decryptedBuffer), {
         headers: {
           'Content-Type': 'application/octet-stream',
@@ -147,16 +147,16 @@ export async function GET(request: NextRequest) {
         }
       })
     } catch (fileError) {
-      console.error('Erreur détaillée lors du traitement du fichier:', fileError)
+      console.error('Detailed error during file processing:', fileError)
       return NextResponse.json(
-        { error: 'Erreur lors du traitement du fichier: ' + (fileError as Error).message },
+        { error: 'Error processing file: ' + (fileError as Error).message },
         { status: 500 }
       )
     }
   } catch (error) {
-    console.error('Erreur générale:', error)
+    console.error('General error:', error)
     return NextResponse.json(
-      { error: 'Erreur lors du téléchargement: ' + (error as Error).message },
+      { error: 'Download error: ' + (error as Error).message },
       { status: 500 }
     )
   }

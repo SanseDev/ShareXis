@@ -27,11 +27,11 @@ export default function Pricing() {
           {/* En-tête */}
           <div className="text-center mb-16">
             <h1 className="text-4xl font-bold mb-4">
-              Choisissez votre plan
+              Choose your plan
             </h1>
             <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-              Des solutions adaptées à tous vos besoins de partage de fichiers,
-              de la version gratuite aux fonctionnalités avancées pour les entreprises.
+              Solutions adapted to all your file sharing needs,
+              from the free version to advanced features for businesses.
             </p>
           </div>
 
@@ -40,30 +40,30 @@ export default function Pricing() {
             {/* Plan Gratuit */}
             <div className="bg-[#1a1d24] rounded-2xl p-8 border border-gray-800/30 flex flex-col h-full">
               <div className="mb-8">
-                <h3 className="text-xl font-semibold mb-2">Gratuit</h3>
-                <p className="text-gray-400">Pour un usage personnel</p>
+                <h3 className="text-xl font-semibold mb-2">Free</h3>
+                <p className="text-gray-400">For personal use</p>
                 <div className="mt-4">
                   <span className="text-4xl font-bold">0€</span>
-                  <span className="text-gray-400">/mois</span>
+                  <span className="text-gray-400">/month</span>
                 </div>
               </div>
 
               <ul className="space-y-4 mb-8 flex-grow">
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
-                  <span>Jusqu&apos;à 100 MB par fichier</span>
+                  <span>Up to 100 MB per file</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
-                  <span>5 partages par jour</span>
+                  <span>5 shares per day</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
-                  <span>Conservation 7 jours</span>
+                  <span>7 days storage</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
-                  <span>Chiffrement de base</span>
+                  <span>Basic encryption</span>
                 </li>
               </ul>
             </div>
@@ -71,86 +71,86 @@ export default function Pricing() {
             {/* Plan Pro */}
             <div className="bg-gradient-to-b from-[#1a1d24] to-[#1a1d24] rounded-2xl p-8 border-2 border-[#4d7cfe] relative flex flex-col h-full">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] rounded-full text-sm font-medium">
-                Populaire
+                Popular
               </div>
 
               <div className="mb-8">
                 <h3 className="text-xl font-semibold mb-2">Pro</h3>
-                <p className="text-gray-400">Pour les professionnels</p>
+                <p className="text-gray-400">For professionals</p>
                 <div className="mt-4">
                   <span className="text-4xl font-bold">9.99€</span>
-                  <span className="text-gray-400">/mois</span>
+                  <span className="text-gray-400">/month</span>
                 </div>
               </div>
 
               <ul className="space-y-4 mb-8 flex-grow">
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
-                  <span>Jusqu&apos;à 5 GB par fichier</span>
+                  <span>Up to 5 GB per file</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
-                  <span>Partages illimités</span>
+                  <span>Unlimited shares</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
-                  <span>Conservation 30 jours</span>
+                  <span>30 days storage</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
-                  <span>Chiffrement avancé</span>
+                  <span>Advanced encryption</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
-                  <span>Statistiques détaillées</span>
+                  <span>Detailed statistics</span>
                 </li>
               </ul>
 
               <div className="text-center py-3 rounded-xl bg-[#232730] text-gray-400">
-                Bientôt disponible
+                Coming soon
               </div>
             </div>
 
             {/* Plan Entreprise */}
             <div className="bg-[#1a1d24] rounded-2xl p-8 border border-gray-800/30 flex flex-col h-full">
               <div className="mb-8">
-                <h3 className="text-xl font-semibold mb-2">Entreprise</h3>
-                <p className="text-gray-400">Pour les grandes équipes</p>
+                <h3 className="text-xl font-semibold mb-2">Enterprise</h3>
+                <p className="text-gray-400">For large teams</p>
                 <div className="mt-4">
                   <span className="text-4xl font-bold">29.99€</span>
-                  <span className="text-gray-400">/mois</span>
+                  <span className="text-gray-400">/month</span>
                 </div>
               </div>
 
               <ul className="space-y-4 mb-8 flex-grow">
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
-                  <span>Jusqu&apos;à 20 GB par fichier</span>
+                  <span>Up to 20 GB per file</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
-                  <span>Partages illimités</span>
+                  <span>Unlimited shares</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
-                  <span>Conservation illimitée</span>
+                  <span>Unlimited storage</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
-                  <span>Chiffrement militaire</span>
+                  <span>Military-grade encryption</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
-                  <span>Administration avancée</span>
+                  <span>Advanced administration</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
-                  <span>Support prioritaire</span>
+                  <span>Priority support</span>
                 </li>
               </ul>
 
               <div className="text-center py-3 rounded-xl bg-[#232730] text-gray-400">
-                Bientôt disponible
+                Coming soon
               </div>
             </div>
           </div>

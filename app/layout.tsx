@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ShareXis - Partage de fichiers simple et sécurisé",
-  description: "Partagez vos fichiers facilement et en toute sécurité avec ShareXis",
+  title: "ShareXis - Simple and Secure File Sharing",
+  description: "Share your files easily and securely with ShareXis",
   viewport: "width=device-width, initial-scale=1, maximum-scale=1",
 };
 
@@ -26,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AuthProvider>
           <Providers>{children}</Providers>

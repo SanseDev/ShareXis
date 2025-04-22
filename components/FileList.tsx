@@ -68,7 +68,7 @@ export default function FileList({ files, userId }: { files: FileObject[], userI
       {files.length === 0 ? (
         <div className="text-center py-12">
           <FileIcon className="mx-auto h-12 w-12 text-gray-300" />
-          <p className="mt-2 text-sm text-gray-500">Aucun fichier partagé</p>
+          <p className="mt-2 text-sm text-gray-500">No shared files</p>
         </div>
       ) : (
         <div className="grid gap-4">

@@ -70,21 +70,21 @@ export default function Documents() {
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold">Partage de Fichiers</h1>
+              <h1 className="text-3xl font-bold">File Sharing</h1>
               <div className="px-3 py-1 rounded-full bg-gradient-to-r from-[#4d7cfe]/10 to-[#00c2ff]/10 text-[#4d7cfe] text-sm">
                 ID: {deviceId}
               </div>
             </div>
           </div>
           
-          {/* Affichage des limites */}
+          {/* Display limits */}
           {deviceId && (
             <div className="mb-8">
               <UserLimitsDisplay userId={deviceId} onLimitReached={handleLimitReached} />
             </div>
           )}
           
-          {/* Zone de dépôt principale */}
+          {/* Main drop zone */}
           <div className="grid md:grid-cols-2 gap-4 md:gap-8">
             <div
               className={`relative border-2 border-dashed rounded-xl p-4 md:p-8 text-center transition-all duration-300 min-h-[300px] md:min-h-[400px] flex flex-col items-center justify-center
@@ -101,16 +101,16 @@ export default function Documents() {
                 <div className="flex flex-col items-center justify-center p-4">
                   <Lock className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 md:mb-6 text-red-500" />
                   <p className="text-lg md:text-xl font-medium mb-2 md:mb-3 text-red-400">
-                    Limite quotidienne atteinte
+                    Daily limit reached
                   </p>
                   <p className="text-sm md:text-base text-gray-400 mb-4 md:mb-6 text-center">
-                    Vous avez atteint votre limite de partages pour aujourd&apos;hui
+                    You have reached your sharing limit for today
                   </p>
                   <button 
                     onClick={() => router.push('/pricing')}
                     className="w-full md:w-auto bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] px-6 py-3 rounded-xl transition-all duration-300 font-medium"
                   >
-                    Passer à un plan supérieur
+                    Upgrade to a higher plan
                   </button>
                 </div>
               ) : (
@@ -121,13 +121,13 @@ export default function Documents() {
                   
                   <Upload className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 md:mb-6 text-[#4d7cfe]" />
                   <p className="text-lg md:text-xl font-medium mb-2 md:mb-3">
-                    Glissez et déposez vos fichiers ici
+                    Drag and drop your files here
                   </p>
                   <p className="text-sm md:text-base text-gray-400 mb-4 md:mb-6">
-                    ou
+                    or
                   </p>
                   <label className="w-full md:w-auto bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] px-6 py-3 rounded-xl cursor-pointer transition-all duration-300 font-medium">
-                    Sélectionner des fichiers
+                    Select files
                     <input
                       type="file"
                       multiple
@@ -137,19 +137,19 @@ export default function Documents() {
                   </label>
                   
                   <div className="mt-6 md:mt-8 text-xs md:text-sm text-gray-400">
-                    <p>Formats supportés : PDF, DOC, DOCX, XLS, XLSX, JPG, PNG</p>
-                    <p>Taille maximale : 100 MB</p>
+                    <p>Supported formats: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG</p>
+                    <p>Maximum size: 100 MB</p>
                   </div>
                 </>
               )}
             </div>
 
-            {/* Liste des fichiers */}
+            {/* File list */}
             <div className="bg-[#1a1d24] rounded-xl p-4 md:p-6 border border-gray-800/30">
               <div className="flex items-center justify-between mb-4 md:mb-6">
                 <div className="flex items-center gap-3">
                   <FileText className="w-5 h-5 text-[#4d7cfe]" />
-                  <h2 className="text-lg md:text-xl font-semibold">Fichiers Sélectionnés</h2>
+                  <h2 className="text-lg md:text-xl font-semibold">Selected Files</h2>
                 </div>
                 {files.length > 0 && !isLimitReached && (
                   <button
@@ -157,7 +157,7 @@ export default function Documents() {
                     className="flex items-center gap-2 bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] px-3 md:px-4 py-2 rounded-lg transition-all duration-300 text-sm md:text-base"
                   >
                     <Share2 className="w-4 h-4" />
-                    <span className="hidden md:inline">Partager</span>
+                    <span className="hidden md:inline">Share</span>
                   </button>
                 )}
               </div>
@@ -165,7 +165,7 @@ export default function Documents() {
               {files.length === 0 ? (
                 <div className="text-center py-8 md:py-12 text-gray-400">
                   <AlertCircle className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-4 opacity-50" />
-                  <p className="text-sm md:text-base">Aucun fichier sélectionné</p>
+                  <p className="text-sm md:text-base">No files selected</p>
                 </div>
               ) : (
                 <div className="space-y-2 md:space-y-3 max-h-[300px] md:max-h-[500px] overflow-y-auto pr-2">

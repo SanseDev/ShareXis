@@ -169,7 +169,7 @@ export default function PaymentModal({ isOpen, onClose, plan }: PaymentModalProp
 
         {paymentMethod === 'crypto' && (
           <div className="text-center text-gray-400">
-            <p>Le paiement par crypto-monnaie sera bientôt disponible.</p>
+            <p>Cryptocurrency payment will be available soon.</p>
           </div>
         )}
       </div>

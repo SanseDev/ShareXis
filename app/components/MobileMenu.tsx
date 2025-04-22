@@ -11,7 +11,7 @@ export default function MobileMenu() {
 
   return (
     <div className="md:hidden">
-      {/* Bouton du menu */}
+      {/* Menu button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 rounded-lg hover:bg-gray-800/50 transition-colors"
@@ -23,7 +23,7 @@ export default function MobileMenu() {
         )}
       </button>
 
-      {/* Menu mobile */}
+      {/* Mobile menu */}
       <div
         className={`fixed inset-0 bg-[#0f1117]/95 backdrop-blur-sm z-50 transition-opacity duration-300 ${
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
@@ -46,7 +46,7 @@ export default function MobileMenu() {
               className="flex items-center gap-3 text-xl text-gray-400 hover:text-white transition-colors p-4 rounded-xl hover:bg-gray-800/50"
             >
               <FileText className="w-6 h-6" />
-              Mes Fichiers
+              My Files
             </Link>
             <Link
               href="/received"
@@ -54,7 +54,7 @@ export default function MobileMenu() {
               className="flex items-center gap-3 text-xl text-gray-400 hover:text-white transition-colors p-4 rounded-xl hover:bg-gray-800/50"
             >
               <Inbox className="w-6 h-6" />
-              Fichiers Reçus
+              Received Files
             </Link>
             <Link
               href="/pricing"
@@ -62,7 +62,7 @@ export default function MobileMenu() {
               className="flex items-center gap-3 text-xl text-gray-400 hover:text-white transition-colors p-4 rounded-xl hover:bg-gray-800/50"
             >
               <Crown className="w-6 h-6" />
-              Forfaits
+              Plans
             </Link>
           </nav>
 

@@ -74,7 +74,7 @@ export default function UserLimitsDisplay({ userId, onLimitReached }: UserLimits
           onClick={loadData}
           className="mt-2 text-sm text-[#4d7cfe] hover:text-[#3d6df0] transition-colors"
         >
-          Réessayer
+          Retry
         </button>
       </div>
     )
@@ -91,7 +91,7 @@ export default function UserLimitsDisplay({ userId, onLimitReached }: UserLimits
     <div className="bg-[#232730] p-4 rounded-lg">
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-medium text-gray-300">
-          {isPaidPlan ? `Plan ${subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1)}` : 'Limites quotidiennes'}
+          {isPaidPlan ? `${subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1)} Plan` : 'Daily Limits'}
         </h3>
         <button 
           onClick={loadData}
@@ -105,20 +105,20 @@ export default function UserLimitsDisplay({ userId, onLimitReached }: UserLimits
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-sm text-[#4d7cfe]">
             <Lock className="w-4 h-4" />
-            <span>Plan premium actif</span>
+            <span>Active premium plan</span>
           </div>
           <div className="text-sm text-gray-400">
-            <p>• Taille maximale par fichier : {planLimits.MAX_FILE_SIZE / (1024 * 1024 * 1024)} GB</p>
-            <p>• Partages illimités</p>
-            <p>• Conservation pendant {planLimits.STORAGE_DAYS === Infinity ? 'une durée illimitée' : `${planLimits.STORAGE_DAYS} jours`}</p>
-            <p>• Chiffrement {planLimits.ENCRYPTION_LEVEL}</p>
+            <p>• Maximum file size: {planLimits.MAX_FILE_SIZE / (1024 * 1024 * 1024)} GB</p>
+            <p>• Unlimited shares</p>
+            <p>• Storage for {planLimits.STORAGE_DAYS === Infinity ? 'unlimited time' : `${planLimits.STORAGE_DAYS} days`}</p>
+            <p>• {planLimits.ENCRYPTION_LEVEL} encryption</p>
           </div>
         </div>
       ) : (
         <>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-400">Partages utilisés</span>
+              <span className="text-sm text-gray-400">Used shares</span>
               <span className="text-sm font-medium">
                 {limitsState.dailySharesUsed} / {FREE_PLAN_LIMITS.DAILY_SHARES}
               </span>
@@ -141,7 +141,7 @@ export default function UserLimitsDisplay({ userId, onLimitReached }: UserLimits
           {limitsState.isLimitReached && (
             <div className="mt-4 p-3 bg-red-500/10 rounded-lg flex items-center gap-2 text-sm text-red-400">
               <AlertCircle className="w-4 h-4" />
-              <span>Limite quotidienne atteinte</span>
+              <span>Daily limit reached</span>
             </div>
           )}
         </>

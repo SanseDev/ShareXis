@@ -119,12 +119,12 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
       <div className="bg-[#1a1d24] rounded-xl p-6 max-w-md w-full relative">
         {showSuccessNotification && (
           <div className="absolute top-0 left-0 right-0 -translate-y-full mb-4 p-4 bg-green-500 text-white rounded-t-xl animate-slide-down">
-            Fichiers envoyés avec succès !
+            Files sent successfully!
           </div>
         )}
         
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold">Partager {files.length} fichier{files.length > 1 ? 's' : ''}</h2>
+          <h2 className="text-xl font-semibold">Share {files.length} file{files.length > 1 ? 's' : ''}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white"
@@ -153,35 +153,35 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
         ) : (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Votre nom</label>
+              <label className="block text-sm text-gray-400 mb-1">Your name</label>
               <input
                 type="text"
                 value={senderName}
                 onChange={(e) => setSenderName(e.target.value)}
-                placeholder="Entrez votre nom"
+                placeholder="Enter your name"
                 className="w-full px-4 py-2 bg-[#232730] rounded-lg border border-gray-700 focus:border-[#4d7cfe] focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-sm text-gray-400 mb-1">ID de l&apos;appareil destinataire</label>
+              <label className="block text-sm text-gray-400 mb-1">Recipient device ID</label>
               <input
                 type="text"
                 value={recipientId}
                 onChange={(e) => setRecipientId(e.target.value)}
-                placeholder="Entrez l'ID à 8 caractères"
+                placeholder="Enter 8-character ID"
                 className="w-full px-4 py-2 bg-[#232730] rounded-lg border border-gray-700 focus:border-[#4d7cfe] focus:outline-none"
                 maxLength={8}
               />
             </div>
 
             <div className="bg-[#232730] p-4 rounded-lg space-y-2">
-              <h3 className="text-sm font-medium text-gray-400">Limites du plan gratuit :</h3>
+              <h3 className="text-sm font-medium text-gray-400">Free plan limits:</h3>
               <ul className="text-sm text-gray-400 space-y-1">
-                <li>• Taille maximale par fichier : {FREE_PLAN_LIMITS.MAX_FILE_SIZE / (1024 * 1024)} MB</li>
-                <li>• {FREE_PLAN_LIMITS.DAILY_SHARES} partages par jour</li>
-                <li>• Conservation pendant {FREE_PLAN_LIMITS.STORAGE_DAYS} jours</li>
-                <li>• Chiffrement {FREE_PLAN_LIMITS.ENCRYPTION_LEVEL}</li>
+                <li>• Maximum file size: {FREE_PLAN_LIMITS.MAX_FILE_SIZE / (1024 * 1024)} MB</li>
+                <li>• {FREE_PLAN_LIMITS.DAILY_SHARES} shares per day</li>
+                <li>• Storage for {FREE_PLAN_LIMITS.STORAGE_DAYS} days</li>
+                <li>• {FREE_PLAN_LIMITS.ENCRYPTION_LEVEL} encryption</li>
               </ul>
             </div>
 

@@ -35,21 +35,21 @@ export default function Header() {
                 className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
               >
                 <FileText className="w-4 h-4" />
-                Mes Fichiers
+                My Files
               </Link>
               <Link 
                 href="/received"
                 className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
               >
                 <Inbox className="w-4 h-4" />
-                Fichiers Reçus
+                Received Files
               </Link>
               <Link 
                 href="/pricing"
                 className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
               >
                 <Crown className="w-4 h-4" />
-                Forfaits
+                Plans
               </Link>
             </nav>
           </div>

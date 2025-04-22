@@ -29,7 +29,7 @@ export default function Home() {
               onClick={() => router.push('/documents')}
               className="bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] px-5 py-2 rounded-lg transition-all duration-300 font-medium"
             >
-              {isAuthenticated ? 'Mes fichiers' : 'Commencer'}
+              {isAuthenticated ? 'My Files' : 'Get Started'}
             </button>
           </div>
         </div>
@@ -40,21 +40,21 @@ export default function Home() {
         <div className="grid md:grid-cols-2 gap-20 items-center py-24">
           <div className="max-w-xl">
             <h2 className="text-5xl sm:text-6xl font-bold mb-8 leading-[1.1]">
-              Le partage de fichiers
+              File sharing
               <span className="block bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] text-transparent bg-clip-text">
-                simple et sécurisé
+                simple and secure
               </span>
             </h2>
             <p className="text-[#8b95a5] text-xl mb-12 leading-relaxed">
-              Partagez vos fichiers instantanément avec une sécurité maximale.
-              Une solution moderne pour tous vos besoins de partage.
+              Share your files instantly with maximum security.
+              A modern solution for all your sharing needs.
             </p>
             <div className="flex gap-4">
               <button 
                 onClick={() => router.push('/documents')}
                 className="bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] px-8 py-4 rounded-xl transition-all duration-300 text-lg font-medium"
               >
-                Commencer Maintenant
+                Get Started Now
               </button>
             </div>
           </div>
@@ -71,7 +71,7 @@ export default function Home() {
                   height={32}
                   className="w-8 h-8"
                 />
-                <span className="text-sm font-medium text-gray-400">Interface de partage</span>
+                <span className="text-sm font-medium text-gray-400">Sharing Interface</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] rounded-full flex items-center justify-center">
@@ -97,7 +97,7 @@ export default function Home() {
 
             {/* File List */}
             <div className="space-y-4">
-              {/* Fichier en cours de partage */}
+              {/* File being shared */}
               <div className="bg-[#232730] p-4 rounded-xl hover:bg-[#282d36] transition-colors cursor-pointer group">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-gradient-to-r from-[#4d7cfe]/10 to-[#00c2ff]/10 rounded-xl flex items-center justify-center">
@@ -108,7 +108,7 @@ export default function Home() {
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-2">
                       <div className="h-4 bg-[#1a1d24] rounded-lg w-3/4"></div>
-                      <span className="text-xs text-[#4d7cfe]">En cours...</span>
+                      <span className="text-xs text-[#4d7cfe]">In progress...</span>
                     </div>
                     <div className="relative w-full">
                       <div className="h-1.5 bg-gradient-to-r from-[#4d7cfe]/10 to-[#00c2ff]/10 rounded-full">
@@ -119,7 +119,7 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Fichier partagé */}
+              {/* Shared file */}
               <div className="bg-[#232730] p-4 rounded-xl hover:bg-[#282d36] transition-colors cursor-pointer group">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-gradient-to-r from-[#00c2ff]/10 to-[#4d7cfe]/10 rounded-xl flex items-center justify-center">
@@ -130,7 +130,7 @@ export default function Home() {
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-2">
                       <div className="h-4 bg-[#1a1d24] rounded-lg w-2/3"></div>
-                      <span className="text-xs text-green-400">Partagé</span>
+                      <span className="text-xs text-green-400">Shared</span>
                     </div>
                     <div className="h-3 bg-[#1a1d24] rounded-lg w-1/3"></div>
                   </div>

@@ -92,7 +92,7 @@ export default function ReceivedPage() {
           {/* En-tête */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold">Fichiers Reçus</h1>
+              <h1 className="text-3xl font-bold">Received Files</h1>
               <div className="px-3 py-1 rounded-full bg-gradient-to-r from-[#4d7cfe]/10 to-[#00c2ff]/10 text-[#4d7cfe] text-sm">
                 ID: {deviceId}
               </div>
@@ -108,19 +108,19 @@ export default function ReceivedPage() {
                   <Inbox className="w-6 h-6 text-[#4d7cfe]" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold">Réception de Fichiers</h2>
-                  <p className="text-gray-400">Partagez votre ID pour recevoir des fichiers</p>
+                  <h2 className="text-xl font-semibold">File Reception</h2>
+                  <p className="text-gray-400">Share your ID to receive files</p>
                 </div>
               </div>
 
               <div className="bg-[#232730] rounded-xl p-6 mb-6">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-gray-400">Votre ID de réception</span>
+                  <span className="text-gray-400">Your reception ID</span>
                   <button 
                     onClick={() => navigator.clipboard.writeText(deviceId)}
                     className="text-sm px-3 py-1 rounded-lg bg-[#4d7cfe]/10 text-[#4d7cfe] hover:bg-[#4d7cfe]/20 transition-colors"
                   >
-                    Copier
+                    Copy
                   </button>
                 </div>
                 <div className="font-mono text-lg text-[#4d7cfe] bg-[#1a1d24] p-3 rounded-lg text-center">
@@ -131,11 +131,11 @@ export default function ReceivedPage() {
               <div className="space-y-4 text-sm text-gray-400">
                 <div className="flex items-center gap-2">
                   <AlertCircle className="w-4 h-4" />
-                  <span>Les fichiers sont automatiquement supprimés après 7 jours</span>
+                  <span>Files are automatically deleted after 7 days</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <ExternalLink className="w-4 h-4" />
-                  <span>Partagez votre ID uniquement avec des personnes de confiance</span>
+                  <span>Only share your ID with trusted people</span>
                 </div>
               </div>
             </div>
@@ -144,7 +144,7 @@ export default function ReceivedPage() {
             <div className="bg-[#1a1d24] rounded-xl p-6 border border-gray-800/30">
               <div className="flex items-center gap-3 mb-6">
                 <FileText className="w-5 h-5 text-[#4d7cfe]" />
-                <h2 className="text-xl font-semibold">Fichiers Disponibles</h2>
+                <h2 className="text-xl font-semibold">Available Files</h2>
               </div>
 
               {error ? (
@@ -155,7 +155,7 @@ export default function ReceivedPage() {
               ) : files.length === 0 ? (
                 <div className="text-center py-12 text-gray-400">
                   <AlertCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>Aucun fichier reçu pour le moment</p>
+                  <p>No files received yet</p>
                 </div>
               ) : (
                 <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
@@ -179,7 +179,7 @@ export default function ReceivedPage() {
                           <div className="flex flex-col gap-1">
                             <div className="flex items-center gap-2 text-sm">
                               <User className="w-4 h-4 text-[#4d7cfe]" />
-                              <span className="text-[#4d7cfe]">Expéditeur : {file.sender_name || 'Anonyme'}</span>
+                              <span className="text-[#4d7cfe]">Sender: {file.sender_name || 'Anonymous'}</span>
                             </div>
                             <div className="flex items-center justify-between">
                               <p className="text-sm text-gray-400">
@@ -190,7 +190,7 @@ export default function ReceivedPage() {
                                 className="flex items-center gap-2 text-sm text-[#4d7cfe] hover:text-[#3d6df0] transition-colors"
                               >
                                 <Download className="w-4 h-4" />
-                                Télécharger
+                                Download
                               </a>
                             </div>
                           </div>
