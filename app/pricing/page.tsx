@@ -1,23 +1,9 @@
 'use client'
 
-import { useState } from 'react'
 import Header from '../components/Header'
 import { Check } from 'lucide-react'
-import PaymentModal from '../components/PaymentModal'
 
 export default function Pricing() {
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
-  const [selectedPlan, setSelectedPlan] = useState<{
-    name: string
-    price: number
-    interval: string
-  } | null>(null)
-
-  const handlePlanSelection = (plan: { name: string; price: number; interval: string }) => {
-    setSelectedPlan(plan)
-    setIsPaymentModalOpen(true)
-  }
-
   return (
     <div className="min-h-screen bg-[#0f1117] text-white">
       <Header />
@@ -156,14 +142,6 @@ export default function Pricing() {
           </div>
         </div>
       </main>
-
-      {selectedPlan && (
-        <PaymentModal
-          isOpen={isPaymentModalOpen}
-          onClose={() => setIsPaymentModalOpen(false)}
-          plan={selectedPlan}
-        />
-      )}
     </div>
   )
 } 
