@@ -106,12 +106,9 @@ export default function Pricing() {
                 </li>
               </ul>
 
-              <button 
-                onClick={() => handlePlanSelection({ name: 'Pro', price: 9.99, interval: 'mois' })}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] text-white transition-all duration-300"
-              >
-                S&apos;abonner
-              </button>
+              <div className="text-center py-3 rounded-xl bg-[#232730] text-gray-400">
+                Bientôt disponible
+              </div>
             </div>
 
             {/* Plan Entreprise */}
@@ -152,12 +149,9 @@ export default function Pricing() {
                 </li>
               </ul>
 
-              <button 
-                onClick={() => handlePlanSelection({ name: 'Entreprise', price: 29.99, interval: 'mois' })}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] text-white transition-all duration-300"
-              >
-                S&apos;abonner
-              </button>
+              <div className="text-center py-3 rounded-xl bg-[#232730] text-gray-400">
+                Bientôt disponible
+              </div>
             </div>
           </div>
         </div>
