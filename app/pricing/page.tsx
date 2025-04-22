@@ -38,7 +38,7 @@ export default function Pricing() {
           {/* Grille des prix */}
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {/* Plan Gratuit */}
-            <div className="bg-[#1a1d24] rounded-2xl p-8 border border-gray-800/30">
+            <div className="bg-[#1a1d24] rounded-2xl p-8 border border-gray-800/30 flex flex-col h-full">
               <div className="mb-8">
                 <h3 className="text-xl font-semibold mb-2">Gratuit</h3>
                 <p className="text-gray-400">Pour un usage personnel</p>
@@ -48,7 +48,7 @@ export default function Pricing() {
                 </div>
               </div>
 
-              <ul className="space-y-4 mb-8">
+              <ul className="space-y-4 mb-8 flex-grow">
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
                   <span>Jusqu&apos;à 100 MB par fichier</span>
@@ -66,17 +66,10 @@ export default function Pricing() {
                   <span>Chiffrement de base</span>
                 </li>
               </ul>
-
-              <button 
-                onClick={() => handlePlanSelection({ name: 'Gratuit', price: 0, interval: 'mois' })}
-                className="w-full py-3 rounded-xl border-2 border-[#4d7cfe] text-[#4d7cfe] hover:bg-[#4d7cfe] hover:text-white transition-all duration-300"
-              >
-                Commencer
-              </button>
             </div>
 
             {/* Plan Pro */}
-            <div className="bg-gradient-to-b from-[#1a1d24] to-[#1a1d24] rounded-2xl p-8 border-2 border-[#4d7cfe] relative">
+            <div className="bg-gradient-to-b from-[#1a1d24] to-[#1a1d24] rounded-2xl p-8 border-2 border-[#4d7cfe] relative flex flex-col h-full">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] rounded-full text-sm font-medium">
                 Populaire
               </div>
@@ -90,7 +83,7 @@ export default function Pricing() {
                 </div>
               </div>
 
-              <ul className="space-y-4 mb-8">
+              <ul className="space-y-4 mb-8 flex-grow">
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
                   <span>Jusqu&apos;à 5 GB par fichier</span>
@@ -117,12 +110,12 @@ export default function Pricing() {
                 onClick={() => handlePlanSelection({ name: 'Pro', price: 9.99, interval: 'mois' })}
                 className="w-full py-3 rounded-xl bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] text-white transition-all duration-300"
               >
-                Commencer l&apos;essai gratuit
+                S&apos;abonner
               </button>
             </div>
 
             {/* Plan Entreprise */}
-            <div className="bg-[#1a1d24] rounded-2xl p-8 border border-gray-800/30">
+            <div className="bg-[#1a1d24] rounded-2xl p-8 border border-gray-800/30 flex flex-col h-full">
               <div className="mb-8">
                 <h3 className="text-xl font-semibold mb-2">Entreprise</h3>
                 <p className="text-gray-400">Pour les grandes équipes</p>
@@ -132,7 +125,7 @@ export default function Pricing() {
                 </div>
               </div>
 
-              <ul className="space-y-4 mb-8">
+              <ul className="space-y-4 mb-8 flex-grow">
                 <li className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
                   <span>Jusqu&apos;à 20 GB par fichier</span>
@@ -161,9 +154,9 @@ export default function Pricing() {
 
               <button 
                 onClick={() => handlePlanSelection({ name: 'Entreprise', price: 29.99, interval: 'mois' })}
-                className="w-full py-3 rounded-xl bg-[#232730] hover:bg-[#282d36] text-white transition-all duration-300"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] text-white transition-all duration-300"
               >
-                Contacter les ventes
+                S&apos;abonner
               </button>
             </div>
           </div>
