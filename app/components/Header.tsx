@@ -3,11 +3,11 @@
 import { useAuth } from '../contexts/AuthContext'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Inbox, FileText, Crown } from 'lucide-react'
+import { Inbox, FileText, Crown, Laptop, LogOut, User } from 'lucide-react'
 import MobileMenu from './MobileMenu'
 
 export default function Header() {
-  const { deviceId } = useAuth()
+  const { deviceId, googleEmail, isGoogleLinked, unlinkGoogleAccount } = useAuth()
 
   return (
     <header className="border-b border-gray-800/30">
@@ -30,44 +30,58 @@ export default function Header() {
 
             {/* Navigation desktop */}
             <nav className="hidden md:flex items-center gap-6">
-              <Link 
+              <Link
                 href="/documents"
-                className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                className="text-gray-400 hover:text-white flex items-center gap-2 transition-colors"
               >
-                <FileText className="w-4 h-4" />
-                My Files
+                <FileText className="w-5 h-5" />
+                <span>Documents</span>
               </Link>
-              <Link 
+              <Link
                 href="/received"
-                className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                className="text-gray-400 hover:text-white flex items-center gap-2 transition-colors"
               >
-                <Inbox className="w-4 h-4" />
-                Received Files
+                <Inbox className="w-5 h-5" />
+                <span>Reçus</span>
               </Link>
-              <Link 
-                href="/pricing"
-                className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+              <Link
+                href="/devices"
+                className="text-gray-400 hover:text-white flex items-center gap-2 transition-colors"
               >
-                <Crown className="w-4 h-4" />
-                Plans
+                <Laptop className="w-5 h-5" />
+                <span>Appareils</span>
+              </Link>
+              <Link
+                href="/pricing"
+                className="text-gray-400 hover:text-white flex items-center gap-2 transition-colors"
+              >
+                <Crown className="w-5 h-5" />
+                <span>Tarifs</span>
               </Link>
             </nav>
           </div>
 
-          <div className="flex items-center gap-4">
-            {/* User ID desktop */}
-            {deviceId && (
-              <div className="hidden md:flex items-center gap-4">
-                <div className="px-4 py-2 rounded-full bg-gradient-to-r from-[#4d7cfe]/10 to-[#00c2ff]/10">
-                  <span className="text-sm text-gray-400">ID: </span>
-                  <span className="font-mono text-[#4d7cfe]">{deviceId}</span>
+          {/* User section */}
+          <div className="hidden md:flex items-center gap-4">
+            {isGoogleLinked && googleEmail && (
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 text-gray-400">
+                  <User className="w-5 h-5" />
+                  <span>{googleEmail}</span>
                 </div>
+                <button
+                  onClick={unlinkGoogleAccount}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Délier Google</span>
+                </button>
               </div>
             )}
-
-            {/* Menu mobile */}
-            <MobileMenu />
           </div>
+
+          {/* Mobile menu button */}
+          <MobileMenu />
         </div>
       </div>
     </header>

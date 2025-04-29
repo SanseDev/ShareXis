@@ -2,12 +2,17 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Inbox, FileText, Crown, Menu, X } from 'lucide-react'
+import { Inbox, FileText, Crown, Menu, X, Laptop, LogOut, User } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
 export default function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false)
-  const { deviceId } = useAuth()
+  const { deviceId, googleEmail, isGoogleLinked, unlinkGoogleAccount } = useAuth()
+
+  const handleUnlinkGoogle = () => {
+    unlinkGoogleAccount()
+    setIsOpen(false)
+  }
 
   return (
     <div className="md:hidden">
@@ -29,8 +34,8 @@ export default function MobileMenu() {
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
       >
-        <div className="p-4">
-          <div className="flex justify-end mb-8">
+        <div className="flex flex-col h-full">
+          <div className="flex justify-end p-4">
             <button
               onClick={() => setIsOpen(false)}
               className="p-2 rounded-lg hover:bg-gray-800/50 transition-colors"
@@ -39,39 +44,58 @@ export default function MobileMenu() {
             </button>
           </div>
 
-          <nav className="flex flex-col gap-6">
+          {/* User info */}
+          {isGoogleLinked && googleEmail && (
+            <div className="px-6 py-4 border-b border-gray-800/30">
+              <div className="flex items-center gap-2 text-gray-400 mb-4">
+                <User className="w-5 h-5" />
+                <span>{googleEmail}</span>
+              </div>
+              <button
+                onClick={handleUnlinkGoogle}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Délier Google</span>
+              </button>
+            </div>
+          )}
+
+          {/* Navigation links */}
+          <nav className="flex flex-col p-6 space-y-4">
             <Link
               href="/documents"
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 text-xl text-gray-400 hover:text-white transition-colors p-4 rounded-xl hover:bg-gray-800/50"
+              className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors"
             >
-              <FileText className="w-6 h-6" />
-              My Files
+              <FileText className="w-5 h-5" />
+              <span>Documents</span>
             </Link>
             <Link
               href="/received"
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 text-xl text-gray-400 hover:text-white transition-colors p-4 rounded-xl hover:bg-gray-800/50"
+              className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors"
             >
-              <Inbox className="w-6 h-6" />
-              Received Files
+              <Inbox className="w-5 h-5" />
+              <span>Reçus</span>
+            </Link>
+            <Link
+              href="/devices"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors"
+            >
+              <Laptop className="w-5 h-5" />
+              <span>Appareils</span>
             </Link>
             <Link
               href="/pricing"
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 text-xl text-gray-400 hover:text-white transition-colors p-4 rounded-xl hover:bg-gray-800/50"
+              className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors"
             >
-              <Crown className="w-6 h-6" />
-              Plans
+              <Crown className="w-5 h-5" />
+              <span>Tarifs</span>
             </Link>
           </nav>
-
-          {deviceId && (
-            <div className="mt-8 p-4 rounded-xl bg-gradient-to-r from-[#4d7cfe]/10 to-[#00c2ff]/10">
-              <span className="text-sm text-gray-400">ID: </span>
-              <span className="font-mono text-[#4d7cfe]">{deviceId}</span>
-            </div>
-          )}
         </div>
       </div>
     </div>

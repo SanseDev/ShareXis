@@ -8,8 +8,26 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = createRouteHandlerClient({ cookies })
+    
+    // Échanger le code contre une session
     await supabase.auth.exchangeCodeForSession(code)
+
+    // Récupérer la session actuelle
+    const { data: { session } } = await supabase.auth.getSession()
+
+    if (session?.user) {
+      // Créer un cookie pour stocker temporairement l'ID utilisateur
+      const response = NextResponse.redirect(new URL('/pricing', request.url))
+      response.cookies.set('user_id', session.user.id, {
+        path: '/',
+        maxAge: 60 * 5, // 5 minutes
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production'
+      })
+      return response
+    }
   }
 
-  return NextResponse.redirect(new URL('/', request.url))
+  // Rediriger vers la page de tarification
+  return NextResponse.redirect(new URL('/pricing', request.url))
 }
