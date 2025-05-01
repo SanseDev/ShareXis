@@ -7,7 +7,7 @@ import { Inbox, FileText, Crown, Laptop, LogOut, User } from 'lucide-react'
 import MobileMenu from './MobileMenu'
 
 export default function Header() {
-  const { deviceId, googleEmail, isGoogleLinked, unlinkGoogleAccount } = useAuth()
+  const { deviceId, googleEmail, isGoogleLinked, unlinkGoogleAccount, linkGoogleAccount } = useAuth()
 
   return (
     <header className="border-b border-gray-800/30">
@@ -63,20 +63,33 @@ export default function Header() {
 
           {/* User section */}
           <div className="hidden md:flex items-center gap-4">
-            {isGoogleLinked && googleEmail && (
+            {isGoogleLinked ? (
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2 text-gray-400">
                   <User className="w-5 h-5" />
-                  <span>{googleEmail}</span>
+                  <span>Connecté</span>
                 </div>
                 <button
                   onClick={unlinkGoogleAccount}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors"
+                  className="flex items-center justify-center w-10 h-10 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors"
+                  title="Délier le compte Google"
                 >
-                  <LogOut className="w-4 h-4" />
-                  <span>Délier Google</span>
+                  <LogOut className="w-5 h-5" />
                 </button>
               </div>
+            ) : (
+              <button
+                onClick={linkGoogleAccount}
+                className="flex items-center justify-center w-10 h-10 rounded-lg bg-white hover:bg-gray-100 transition-colors"
+                title="Se connecter avec Google"
+              >
+                <Image 
+                  src="/google-icon.svg" 
+                  alt="Google" 
+                  width={20} 
+                  height={20}
+                />
+              </button>
             )}
           </div>
 
