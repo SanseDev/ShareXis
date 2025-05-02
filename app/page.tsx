@@ -2,10 +2,17 @@
 import { useRouter } from 'next/navigation';
 import { useAuth } from './contexts/AuthContext';
 import Image from 'next/image';
+import { useEffect } from 'react';
 
 export default function Home() {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isGoogleLinked } = useAuth();
+
+  useEffect(() => {
+    if (isGoogleLinked) {
+      router.push('/documents');
+    }
+  }, [isGoogleLinked, router]);
 
   return (
     <div className="min-h-screen bg-[#0f1117] text-white overflow-hidden">
@@ -29,7 +36,7 @@ export default function Home() {
               onClick={() => router.push('/documents')}
               className="bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] px-5 py-2 rounded-lg transition-all duration-300 font-medium"
             >
-              {isAuthenticated ? 'My Files' : 'Get Started'}
+              {isAuthenticated ? 'Mes Fichiers' : 'Commencer'}
             </button>
           </div>
         </div>

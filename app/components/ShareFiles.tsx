@@ -6,6 +6,7 @@ import { shareFiles } from '../services/fileService'
 import { useAuth } from '../contexts/AuthContext'
 import { FREE_PLAN_LIMITS } from '../utils/limits'
 import { getUserLimitsState } from '../utils/userLimits'
+import { getUserSubscription, getPlanLimits } from '../utils/subscription'
 
 interface ShareFilesProps {
   files: File[]
@@ -25,12 +26,20 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
   const [showSuccessNotification, setShowSuccessNotification] = useState(false)
   const [isLimitReached, setIsLimitReached] = useState(false)
   const [isCheckingLimits, setIsCheckingLimits] = useState(true)
+  const [subscription, setSubscription] = useState<any>(null)
+  const [planLimits, setPlanLimits] = useState(FREE_PLAN_LIMITS)
 
   const checkLimits = useCallback(async () => {
     if (!deviceId) return
     
     try {
-      const limitsState = await getUserLimitsState(deviceId)
+      const [limitsState, userSubscription] = await Promise.all([
+        getUserLimitsState(deviceId),
+        getUserSubscription(deviceId)
+      ])
+
+      setSubscription(userSubscription)
+      setPlanLimits(getPlanLimits(userSubscription?.plan || 'free'))
       setIsLimitReached(limitsState.isLimitReached)
     } catch (error) {
       console.error('Erreur lors de la vérification des limites:', error)
@@ -70,18 +79,20 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
     }
 
     // Vérifier la taille des fichiers
-    const oversizedFiles = files.filter(file => file.size > FREE_PLAN_LIMITS.MAX_FILE_SIZE)
+    const oversizedFiles = files.filter(file => file.size > planLimits.MAX_FILE_SIZE)
     if (oversizedFiles.length > 0) {
-      setError(`Les fichiers suivants dépassent la limite de ${FREE_PLAN_LIMITS.MAX_FILE_SIZE / (1024 * 1024)} MB : ${oversizedFiles.map(f => f.name).join(', ')}`)
+      setError(`Les fichiers suivants dépassent la limite de ${planLimits.MAX_FILE_SIZE / (1024 * 1024)} MB : ${oversizedFiles.map(f => f.name).join(', ')}`)
       return
     }
 
-    // Vérifier à nouveau les limites avant l'envoi
-    const limitsState = await getUserLimitsState(deviceId)
-    if (limitsState.isLimitReached) {
-      setIsLimitReached(true)
-      setError('Vous avez atteint votre limite quotidienne de partages')
-      return
+    // Vérifier à nouveau les limites avant l'envoi si l'utilisateur n'a pas d'abonnement payant
+    if (!subscription || subscription.plan === 'free') {
+      const limitsState = await getUserLimitsState(deviceId)
+      if (limitsState.isLimitReached) {
+        setIsLimitReached(true)
+        setError('Vous avez atteint votre limite quotidienne de partages')
+        return
+      }
     }
 
     setIsSharing(true)
@@ -114,17 +125,19 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
     )
   }
 
+  const isPaidPlan = subscription?.plan && subscription.plan !== 'free'
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-[#1a1d24] rounded-xl p-6 max-w-md w-full relative">
         {showSuccessNotification && (
           <div className="absolute top-0 left-0 right-0 -translate-y-full mb-4 p-4 bg-green-500 text-white rounded-t-xl animate-slide-down">
-            Files sent successfully!
+            Fichiers envoyés avec succès !
           </div>
         )}
         
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold">Share {files.length} file{files.length > 1 ? 's' : ''}</h2>
+          <h2 className="text-xl font-semibold">Partager {files.length} fichier{files.length > 1 ? 's' : ''}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white"
@@ -133,13 +146,13 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
           </button>
         </div>
 
-        {isLimitReached ? (
+        {isLimitReached && !isPaidPlan ? (
           <div className="space-y-4">
             <div className="p-4 bg-red-500/10 rounded-lg flex items-center gap-3 text-red-400">
               <Lock className="w-5 h-5" />
               <div>
                 <p className="font-medium">Limite quotidienne atteinte</p>
-                <p className="text-sm">Vous avez atteint votre limite de {FREE_PLAN_LIMITS.DAILY_SHARES} partages pour aujourd&apos;hui</p>
+                <p className="text-sm">Vous avez atteint votre limite de {planLimits.DAILY_SHARES} partages pour aujourd&apos;hui</p>
               </div>
             </div>
             
@@ -153,35 +166,37 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
         ) : (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Your name</label>
+              <label className="block text-sm text-gray-400 mb-1">Votre nom</label>
               <input
                 type="text"
                 value={senderName}
                 onChange={(e) => setSenderName(e.target.value)}
-                placeholder="Enter your name"
+                placeholder="Entrez votre nom"
                 className="w-full px-4 py-2 bg-[#232730] rounded-lg border border-gray-700 focus:border-[#4d7cfe] focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Recipient device ID</label>
+              <label className="block text-sm text-gray-400 mb-1">ID de l'appareil destinataire</label>
               <input
                 type="text"
                 value={recipientId}
                 onChange={(e) => setRecipientId(e.target.value)}
-                placeholder="Enter 8-character ID"
+                placeholder="Entrez l'ID à 8 caractères"
                 className="w-full px-4 py-2 bg-[#232730] rounded-lg border border-gray-700 focus:border-[#4d7cfe] focus:outline-none"
                 maxLength={8}
               />
             </div>
 
             <div className="bg-[#232730] p-4 rounded-lg space-y-2">
-              <h3 className="text-sm font-medium text-gray-400">Free plan limits:</h3>
+              <h3 className="text-sm font-medium text-gray-400">
+                {isPaidPlan ? `Limites du plan ${subscription.plan}` : 'Limites du plan gratuit'}:
+              </h3>
               <ul className="text-sm text-gray-400 space-y-1">
-                <li>• Maximum file size: {FREE_PLAN_LIMITS.MAX_FILE_SIZE / (1024 * 1024)} MB</li>
-                <li>• {FREE_PLAN_LIMITS.DAILY_SHARES} shares per day</li>
-                <li>• Storage for {FREE_PLAN_LIMITS.STORAGE_DAYS} days</li>
-                <li>• {FREE_PLAN_LIMITS.ENCRYPTION_LEVEL} encryption</li>
+                <li>• Taille maximale des fichiers: {planLimits.MAX_FILE_SIZE / (1024 * 1024)} MB</li>
+                <li>• {planLimits.DAILY_SHARES === Infinity ? 'Partages illimités' : `${planLimits.DAILY_SHARES} partages par jour`}</li>
+                <li>• Stockage pendant {planLimits.STORAGE_DAYS === Infinity ? 'une durée illimitée' : `${planLimits.STORAGE_DAYS} jours`}</li>
+                <li>• Chiffrement {planLimits.ENCRYPTION_LEVEL}</li>
               </ul>
             </div>
 
