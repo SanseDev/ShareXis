@@ -5,13 +5,30 @@ import Link from 'next/link'
 import { Inbox, FileText, Crown, Menu, X, Laptop, LogOut, User } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
-export default function MobileMenu() {
+interface MobileMenuProps {
+  subscription: {
+    plan: 'free' | 'pro' | 'enterprise'
+  } | null
+}
+
+export default function MobileMenu({ subscription }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const { deviceId, googleEmail, isGoogleLinked, unlinkGoogleAccount } = useAuth()
 
   const handleUnlinkGoogle = () => {
     unlinkGoogleAccount()
     setIsOpen(false)
+  }
+
+  const getPlanBadgeColor = (plan: string) => {
+    switch (plan) {
+      case 'pro':
+        return 'from-[#4d7cfe] to-[#00c2ff]'
+      case 'enterprise':
+        return 'from-purple-500 to-pink-500'
+      default:
+        return 'from-gray-500 to-gray-600'
+    }
   }
 
   return (
@@ -47,13 +64,20 @@ export default function MobileMenu() {
           {/* User info */}
           {isGoogleLinked && googleEmail && (
             <div className="px-6 py-4 border-b border-gray-800/30">
-              <div className="flex items-center gap-2 text-gray-400 mb-4">
-                <User className="w-5 h-5" />
-                <span>{googleEmail}</span>
+              <div className="flex flex-col gap-3">
+                {subscription && subscription.plan !== 'free' && (
+                  <div className={`self-start px-3 py-1 rounded-full bg-gradient-to-r ${getPlanBadgeColor(subscription.plan)} text-white text-sm font-medium`}>
+                    {subscription.plan === 'enterprise' ? 'Enterprise' : 'Pro'}
+                  </div>
+                )}
+                <div className="flex items-center gap-2 text-gray-400">
+                  <User className="w-5 h-5" />
+                  <span>{googleEmail}</span>
+                </div>
               </div>
               <button
                 onClick={handleUnlinkGoogle}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 mt-4 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Délier Google</span>
