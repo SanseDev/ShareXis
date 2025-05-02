@@ -29,9 +29,10 @@ export default function Pricing() {
     }
   }
 
-  const handlePaymentError = (error: { message: string }) => {
-    console.error('Erreur de paiement:', error)
-    // Vous pouvez ajouter ici un message d'erreur pour l'utilisateur
+  const handlePaymentError = (error: any) => {
+    const errorMessage = error?.message || 'Une erreur inattendue est survenue'
+    console.error('Erreur de paiement:', { error, message: errorMessage })
+    // TODO: Ajouter ici un état pour afficher le message d'erreur à l'utilisateur
   }
 
   const handlePaymentSuccess = () => {

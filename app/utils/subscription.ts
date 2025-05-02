@@ -43,6 +43,8 @@ export const createSubscription = async (
     const expiresAt = new Date(now)
     expiresAt.setMonth(expiresAt.getMonth() + 1) // Par défaut, 1 mois
 
+    const planLimits = getPlanLimits(plan)
+
     const { data, error } = await supabase
       .from('subscriptions')
       .insert({
@@ -51,7 +53,11 @@ export const createSubscription = async (
         status: 'active',
         stripe_subscription_id: stripeSubscriptionId,
         created_at: now.toISOString(),
-        expires_at: expiresAt.toISOString()
+        expires_at: expiresAt.toISOString(),
+        max_file_size: planLimits.MAX_FILE_SIZE,
+        daily_shares: planLimits.DAILY_SHARES === Infinity ? -1 : planLimits.DAILY_SHARES,
+        storage_days: planLimits.STORAGE_DAYS === Infinity ? -1 : planLimits.STORAGE_DAYS,
+        encryption_level: planLimits.ENCRYPTION_LEVEL
       })
       .select()
       .single()

@@ -48,9 +48,11 @@ export default function PayPalButton({ amount, onSuccess, onError }: PayPalButto
               onSuccess?.()
             }
           }}
-          onError={(err) => {
+          onError={(err: any) => {
             console.error("Erreur PayPal:", err)
-            onError?.({ message: 'Une erreur est survenue lors du paiement' })
+            onError?.({ 
+              message: typeof err === 'string' ? err : (err?.message || 'Une erreur est survenue lors du paiement PayPal')
+            })
           }}
         />
       </PayPalScriptProvider>

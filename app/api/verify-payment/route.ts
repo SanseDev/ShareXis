@@ -19,6 +19,12 @@ export async function POST(request: NextRequest) {
 
     // Récupérer la session Stripe
     const session = await stripe.checkout.sessions.retrieve(sessionId)
+    
+    console.log('Session Stripe:', {
+      payment_status: session.payment_status,
+      client_reference_id: session.client_reference_id,
+      metadata: session.metadata,
+    })
 
     if (session.payment_status !== 'paid') {
       return NextResponse.json(
@@ -27,11 +33,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const deviceId = session.metadata?.deviceId || session.client_reference_id
+    const plan = session.metadata?.plan || 'pro'
+
+    if (!deviceId) {
+      return NextResponse.json(
+        { error: 'ID de l\'appareil manquant' },
+        { status: 400 }
+      )
+    }
+
     // Créer l'abonnement dans la base de données
     const subscription = await createSubscription(
-      session.client_reference_id!,
-      session.metadata?.plan as 'free' | 'pro' | 'enterprise',
-      session.subscription as string
+      deviceId,
+      plan as 'free' | 'pro' | 'enterprise'
     )
 
     if (!subscription) {
