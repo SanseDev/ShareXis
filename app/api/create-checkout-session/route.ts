@@ -11,7 +11,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 
 export async function POST(request: NextRequest) {
   try {
-    const { amount, deviceId, plan = 'pro' } = await request.json()
+    const { amount, deviceId, plan } = await request.json()
 
     if (!amount || amount <= 0) {
       return NextResponse.json(
@@ -19,6 +19,23 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    type PlanType = 'free' | 'pro' | 'enterprise'
+    
+    if (!plan || !['free', 'pro', 'enterprise'].includes(plan)) {
+      return NextResponse.json(
+        { error: 'Le plan est invalide' },
+        { status: 400 }
+      )
+    }
+
+    const planNames: Record<PlanType, string> = {
+      free: 'Gratuit',
+      pro: 'Pro',
+      enterprise: 'Entreprise'
+    }
+
+    const validatedPlan = plan as PlanType
 
     // Créer la session de paiement Stripe
     const session = await stripe.checkout.sessions.create({
@@ -29,8 +46,8 @@ export async function POST(request: NextRequest) {
           price_data: {
             currency: 'eur',
             product_data: {
-              name: 'ShareXis Premium',
-              description: `Abonnement Premium - Device ID: ${deviceId || 'Unknown'}`,
+              name: `ShareXis ${planNames[validatedPlan]}`,
+              description: `Abonnement ${planNames[validatedPlan]} - Device ID: ${deviceId || 'Unknown'}`,
             },
             unit_amount: Math.round(amount * 100), // Conversion en centimes
           },
@@ -42,7 +59,7 @@ export async function POST(request: NextRequest) {
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/pricing`,
       metadata: {
         deviceId: deviceId || 'Unknown',
-        plan: plan
+        plan: validatedPlan
       },
     })
 

@@ -6,13 +6,14 @@ import { useAuth } from '../../contexts/AuthContext'
 
 interface StripeButtonProps {
   amount: number
+  plan: 'free' | 'pro' | 'enterprise'
   onSuccess?: () => void
   onError?: (error: { message: string }) => void
 }
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
-export default function StripeButton({ amount, onSuccess, onError }: StripeButtonProps) {
+export default function StripeButton({ amount, plan, onSuccess, onError }: StripeButtonProps) {
   const { deviceId } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
 
@@ -32,6 +33,7 @@ export default function StripeButton({ amount, onSuccess, onError }: StripeButto
         body: JSON.stringify({
           amount,
           deviceId,
+          plan,
         }),
       })
 

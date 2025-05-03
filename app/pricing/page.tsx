@@ -80,6 +80,7 @@ export default function Pricing() {
         </div>
         <StripeButton
           amount={amount}
+          plan={selectedPlan}
           onSuccess={handlePaymentSuccess}
           onError={handlePaymentError}
         />
@@ -161,20 +162,33 @@ export default function Pricing() {
               }`}
               onClick={() => handleSelectPlan('enterprise')}
             >
-              <h2 className="text-2xl font-bold mb-4">Enterprise</h2>
+              <h2 className="text-2xl font-bold mb-4">Entreprise</h2>
+              <p className="text-sm text-gray-400 mb-2">Pour les grandes équipes</p>
               <p className="text-4xl font-bold mb-6">29.99€ <span className="text-lg text-gray-400">/mois</span></p>
               <ul className="space-y-3 mb-8">
                 <li className="flex items-center gap-2">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
-                  <span>10 appareils</span>
+                  <span>Jusqu'à 20 GB par fichier</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
-                  <span>Fichiers jusqu'à 2GB</span>
+                  <span>Partages illimités</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-5 h-5 text-[#4d7cfe]" />
-                  <span>Support dédié 24/7</span>
+                  <span>Conservation illimitée</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-[#4d7cfe]" />
+                  <span>Chiffrement militaire</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-[#4d7cfe]" />
+                  <span>Administration avancée</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-[#4d7cfe]" />
+                  <span>Support prioritaire</span>
                 </li>
               </ul>
             </div>
