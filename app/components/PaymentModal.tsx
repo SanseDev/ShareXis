@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
-import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js'
 import { X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import PayPalButton from '../pricing/components/PayPalButton'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -59,6 +59,10 @@ export default function PaymentModal({ isOpen, onClose, plan }: PaymentModalProp
   const handlePaymentSuccess = () => {
     onClose()
     router.push('/success')
+  }
+
+  const handlePaymentError = (error: { message: string }) => {
+    setError(error.message)
   }
 
   if (!isOpen) return null
@@ -128,43 +132,12 @@ export default function PaymentModal({ isOpen, onClose, plan }: PaymentModalProp
         )}
 
         {paymentMethod === 'paypal' && (
-          <PayPalScriptProvider options={{ 
-            clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!,
-            currency: "EUR"
-          }}>
-            <PayPalButtons
-              createOrder={(data, actions) => {
-                return actions.order.create({
-                  intent: "CAPTURE",
-                  purchase_units: [
-                    {
-                      amount: {
-                        currency_code: "EUR",
-                        value: plan.price.toString(),
-                      },
-                    },
-                  ],
-                })
-              }}
-              onApprove={async (data, actions) => {
-                if (actions.order) {
-                  try {
-                    const order = await actions.order.capture()
-                    console.log('Paiement PayPal réussi:', order)
-                    handlePaymentSuccess()
-                  } catch (error) {
-                    console.error('Erreur lors de la capture du paiement PayPal:', error)
-                    setError('Une erreur est survenue lors du paiement. Veuillez réessayer.')
-                  }
-                }
-              }}
-              onError={(err) => {
-                console.error('Erreur PayPal:', err)
-                setError('Une erreur est survenue lors du paiement. Veuillez réessayer.')
-              }}
-              style={{ layout: "vertical" }}
-            />
-          </PayPalScriptProvider>
+          <PayPalButton
+            amount={plan.price}
+            plan={plan.name.toLowerCase() as 'free' | 'pro' | 'enterprise'}
+            onSuccess={handlePaymentSuccess}
+            onError={handlePaymentError}
+          />
         )}
 
         {paymentMethod === 'crypto' && (

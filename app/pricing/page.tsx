@@ -11,9 +11,13 @@ import StripeButton from './components/StripeButton'
 export default function Pricing() {
   const { hasSubscription, isGoogleLinked } = useAuth()
   const [selectedPlan, setSelectedPlan] = useState<'free' | 'pro' | 'enterprise'>('free')
+  const [error, setError] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
   const handleSelectPlan = (plan: 'free' | 'pro' | 'enterprise') => {
     setSelectedPlan(plan)
+    setError(null)
+    setSuccessMessage(null)
   }
 
   const getPlanPrice = (plan: 'free' | 'pro' | 'enterprise') => {
@@ -32,12 +36,18 @@ export default function Pricing() {
   const handlePaymentError = (error: any) => {
     const errorMessage = error?.message || 'Une erreur inattendue est survenue'
     console.error('Erreur de paiement:', { error, message: errorMessage })
-    // TODO: Ajouter ici un état pour afficher le message d'erreur à l'utilisateur
+    setError(errorMessage)
+    setSuccessMessage(null)
   }
 
   const handlePaymentSuccess = () => {
     console.log('Paiement réussi')
-    // Vous pouvez ajouter ici une redirection ou un message de succès
+    setSuccessMessage(`Votre abonnement ${selectedPlan} a été activé avec succès`)
+    setError(null)
+    // Redirection vers la page de succès après 2 secondes
+    setTimeout(() => {
+      window.location.href = '/success'
+    }, 2000)
   }
 
   const renderPaymentButtons = () => {
@@ -65,8 +75,22 @@ export default function Pricing() {
     return (
       <div className="space-y-4 bg-[#1a1d24] p-6 rounded-xl border border-gray-800/30">
         <h3 className="text-lg font-medium text-center mb-6">Choisissez votre méthode de paiement</h3>
+        
+        {error && (
+          <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500">
+            {error}
+          </div>
+        )}
+        
+        {successMessage && (
+          <div className="mb-4 p-4 bg-green-500/10 border border-green-500/20 rounded-xl text-green-500">
+            {successMessage}
+          </div>
+        )}
+
         <PayPalButton
           amount={amount}
+          plan={selectedPlan}
           onSuccess={handlePaymentSuccess}
           onError={handlePaymentError}
         />

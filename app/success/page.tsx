@@ -1,36 +1,87 @@
 'use client'
 
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Header from '../components/Header'
 import { Check } from 'lucide-react'
 
-function SuccessContent() {
+export default function SuccessPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const hasVerified = useRef(false)
 
   useEffect(() => {
     const sessionId = searchParams.get('session_id')
-    if (!sessionId) {
-      setError('Session de paiement invalide')
+    const paypalOrderId = searchParams.get('paypal_order_id')
+    const deviceId = searchParams.get('device_id')
+    const plan = searchParams.get('plan')
+
+    // Éviter les doubles appels
+    if (hasVerified.current) {
+      return
+    }
+    hasVerified.current = true
+
+    // Log des paramètres reçus
+    console.log('Paramètres reçus:', {
+      sessionId,
+      paypalOrderId,
+      deviceId,
+      plan
+    })
+
+    if (!sessionId && (!paypalOrderId || !deviceId || !plan)) {
+      console.error('Paramètres manquants:', {
+        hasSessionId: !!sessionId,
+        hasPaypalOrderId: !!paypalOrderId,
+        hasDeviceId: !!deviceId,
+        hasPlan: !!plan
+      })
+      setError('Informations de paiement invalides')
       setIsLoading(false)
       return
     }
 
-    // Vérifier le statut de la session Stripe
+    // Vérifier le paiement (Stripe ou PayPal)
     const verifyPayment = async () => {
       try {
-        const response = await fetch('/api/verify-payment', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ sessionId }),
-        })
+        let response;
+        
+        if (sessionId) {
+          console.log('Vérification du paiement Stripe...')
+          // Vérification Stripe
+          response = await fetch('/api/verify-payment', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ sessionId }),
+          })
+        } else {
+          console.log('Vérification du paiement PayPal...', {
+            orderID: paypalOrderId,
+            deviceId,
+            plan,
+          })
+          // Vérification PayPal
+          response = await fetch('/api/verify-paypal-payment', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              orderID: paypalOrderId,
+              deviceId,
+              plan,
+            }),
+          })
+        }
 
         const data = await response.json()
+        console.log('Réponse de l\'API:', data)
+
         if (!response.ok) {
           throw new Error(data.error || 'Erreur lors de la vérification du paiement')
         }
@@ -40,6 +91,7 @@ function SuccessContent() {
           router.push('/documents')
         }, 3000)
       } catch (error) {
+        console.error('Erreur lors de la vérification:', error)
         setError(error instanceof Error ? error.message : 'Une erreur est survenue')
       } finally {
         setIsLoading(false)
@@ -88,17 +140,5 @@ function SuccessContent() {
         </div>
       </main>
     </div>
-  )
-}
-
-export default function Success() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-[#0f1117] text-white flex items-center justify-center">
-        <div className="w-16 h-16 border-4 border-[#4d7cfe] border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    }>
-      <SuccessContent />
-    </Suspense>
   )
 } 
