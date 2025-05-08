@@ -45,12 +45,12 @@ export default function PaymentModal({ isOpen, onClose, plan }: PaymentModalProp
       const { error } = await stripe!.redirectToCheckout({ sessionId })
 
       if (error) {
-        console.error('Erreur Stripe:', error)
-        setError('Une erreur est survenue lors du paiement. Veuillez réessayer.')
+        console.error('Stripe error:', error)
+        setError('An error occurred during payment. Please try again.')
       }
     } catch (error) {
-      console.error('Erreur lors du paiement:', error)
-      setError('Une erreur est survenue lors du paiement. Veuillez réessayer.')
+      console.error('Payment error:', error)
+      setError('An error occurred during payment. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -77,7 +77,7 @@ export default function PaymentModal({ isOpen, onClose, plan }: PaymentModalProp
           <X className="w-6 h-6" />
         </button>
 
-        <h2 className="text-2xl font-bold mb-6">Paiement - {plan.name}</h2>
+        <h2 className="text-2xl font-bold mb-6">Payment - {plan.name}</h2>
         
         {error && (
           <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500">
@@ -86,7 +86,7 @@ export default function PaymentModal({ isOpen, onClose, plan }: PaymentModalProp
         )}
 
         <div className="mb-6">
-          <p className="text-gray-400 mb-2">Choisissez votre méthode de paiement :</p>
+          <p className="text-gray-400 mb-2">Choose your payment method:</p>
           <div className="grid grid-cols-3 gap-4">
             <button
               onClick={() => setPaymentMethod('card')}
@@ -96,7 +96,7 @@ export default function PaymentModal({ isOpen, onClose, plan }: PaymentModalProp
                   : 'border-gray-800/30'
               }`}
             >
-              Carte
+              Card
             </button>
             <button
               onClick={() => setPaymentMethod('paypal')}
@@ -127,7 +127,7 @@ export default function PaymentModal({ isOpen, onClose, plan }: PaymentModalProp
             disabled={isLoading}
             className="w-full py-3 rounded-xl bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] text-white transition-all duration-300 disabled:opacity-50"
           >
-            {isLoading ? 'Traitement...' : `Payer ${plan.price}€/${plan.interval}`}
+            {isLoading ? 'Processing...' : `Pay ${plan.price}$/${plan.interval}`}
           </button>
         )}
 

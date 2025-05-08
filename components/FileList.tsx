@@ -82,7 +82,7 @@ export default function FileList({ files, userId }: { files: FileObject[], userI
                 <div>
                   <p className="text-sm font-medium text-gray-900">{file.name}</p>
                   <p className="text-xs text-gray-500">
-                    {new Date(file.created_at).toLocaleDateString('fr-FR')}
+                    {new Date(file.created_at).toLocaleDateString('en-US')}
                   </p>
                 </div>
               </div>

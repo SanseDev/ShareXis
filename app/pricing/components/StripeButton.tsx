@@ -22,7 +22,7 @@ export default function StripeButton({ amount, plan, onSuccess, onError }: Strip
       setIsLoading(true)
       const stripe = await stripePromise
       if (!stripe) {
-        throw new Error('Le service de paiement n\'est pas disponible pour le moment')
+        throw new Error('Payment service is currently unavailable')
       }
 
       const response = await fetch('/api/create-checkout-session', {
@@ -40,11 +40,11 @@ export default function StripeButton({ amount, plan, onSuccess, onError }: Strip
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Une erreur est survenue lors de la création de la session')
+        throw new Error(data.error || 'An error occurred while creating the session')
       }
 
       if (!data.id) {
-        throw new Error('ID de session invalide')
+        throw new Error('Invalid session ID')
       }
 
       const { error } = await stripe.redirectToCheckout({
@@ -56,9 +56,9 @@ export default function StripeButton({ amount, plan, onSuccess, onError }: Strip
       }
 
     } catch (error: any) {
-      console.error('Erreur lors de l\'initialisation du paiement Stripe:', error)
+      console.error('Error initializing Stripe payment:', error)
       onError?.({ 
-        message: error?.message || 'Une erreur est survenue lors de l\'initialisation du paiement'
+        message: error?.message || 'An error occurred while initializing payment'
       })
     } finally {
       setIsLoading(false)
@@ -76,7 +76,7 @@ export default function StripeButton({ amount, plan, onSuccess, onError }: Strip
         <path d="M2 10H22" stroke="white" strokeWidth="2"/>
         <path d="M6 15H12" stroke="white" strokeWidth="2"/>
       </svg>
-      <span>{isLoading ? 'Chargement...' : 'Payer par carte bancaire'}</span>
+      <span>{isLoading ? 'Loading...' : 'Pay with card'}</span>
     </button>
   )
 } 

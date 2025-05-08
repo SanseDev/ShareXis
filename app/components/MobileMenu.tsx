@@ -80,7 +80,7 @@ export default function MobileMenu({ subscription }: MobileMenuProps) {
                 className="w-full flex items-center justify-center gap-2 px-4 py-2 mt-4 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Délier Google</span>
+                <span>Unlink Google</span>
               </button>
             </div>
           )}
@@ -101,7 +101,7 @@ export default function MobileMenu({ subscription }: MobileMenuProps) {
               className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors"
             >
               <Inbox className="w-5 h-5" />
-              <span>Reçus</span>
+              <span>Received</span>
             </Link>
             <Link
               href="/devices"
@@ -109,7 +109,7 @@ export default function MobileMenu({ subscription }: MobileMenuProps) {
               className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors"
             >
               <Laptop className="w-5 h-5" />
-              <span>Appareils</span>
+              <span>Devices</span>
             </Link>
             <Link
               href="/pricing"
@@ -117,7 +117,7 @@ export default function MobileMenu({ subscription }: MobileMenuProps) {
               className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors"
             >
               <Crown className="w-5 h-5" />
-              <span>Tarifs</span>
+              <span>Pricing</span>
             </Link>
           </nav>
         </div>

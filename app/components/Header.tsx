@@ -66,21 +66,21 @@ export default function Header() {
                 className="text-gray-400 hover:text-white flex items-center gap-2 transition-colors"
               >
                 <Inbox className="w-5 h-5" />
-                <span>Reçus</span>
+                <span>Received</span>
               </Link>
               <Link
                 href="/devices"
                 className="text-gray-400 hover:text-white flex items-center gap-2 transition-colors"
               >
                 <Laptop className="w-5 h-5" />
-                <span>Appareils</span>
+                <span>Devices</span>
               </Link>
               <Link
                 href="/pricing"
                 className="text-gray-400 hover:text-white flex items-center gap-2 transition-colors"
               >
                 <Crown className="w-5 h-5" />
-                <span>Tarifs</span>
+                <span>Pricing</span>
               </Link>
             </nav>
           </div>
@@ -97,13 +97,13 @@ export default function Header() {
                   )}
                   <div className="flex items-center gap-2 text-gray-400">
                     <User className="w-5 h-5" />
-                    <span>Connecté</span>
+                    <span>Connected</span>
                   </div>
                 </div>
                 <button
                   onClick={unlinkGoogleAccount}
                   className="flex items-center justify-center w-10 h-10 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors"
-                  title="Délier le compte Google"
+                  title="Unlink Google Account"
                 >
                   <LogOut className="w-5 h-5" />
                 </button>
@@ -112,7 +112,7 @@ export default function Header() {
               <button
                 onClick={linkGoogleAccount}
                 className="flex items-center justify-center w-10 h-10 rounded-lg bg-white hover:bg-gray-100 transition-colors"
-                title="Se connecter avec Google"
+                title="Sign in with Google"
               >
                 <Image 
                   src="/google-icon.svg" 

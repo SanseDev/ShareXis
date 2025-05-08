@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext'
 import Header from '../components/Header'
 import { Inbox, Download, FileText, AlertCircle, ExternalLink, User, Clock } from 'lucide-react'
 import { getSharedFilesForRecipient } from '../services/fileService'
+import { getTimeAgo } from '../utils/timeUtils'
 
 interface SharedFile {
   id: string
@@ -56,17 +57,6 @@ export default function ReceivedPage() {
     if (bytes < 1024) return bytes + ' B'
     else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB'
     else return (bytes / 1048576).toFixed(1) + ' MB'
-  }
-
-  const getTimeAgo = (timestamp: string) => {
-    const date = new Date(timestamp)
-    const now = new Date()
-    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000)
-
-    if (seconds < 60) return 'À l\'instant'
-    if (seconds < 3600) return `Il y a ${Math.floor(seconds / 60)} minutes`
-    if (seconds < 86400) return `Il y a ${Math.floor(seconds / 3600)} heures`
-    return `Il y a ${Math.floor(seconds / 86400)} jours`
   }
 
   if (isLoading) {
