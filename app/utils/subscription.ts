@@ -12,20 +12,48 @@ export interface Subscription {
 // Récupérer l'abonnement d'un utilisateur
 export const getUserSubscription = async (userId: string): Promise<Subscription | null> => {
   try {
-    const { data, error } = await supabase
+    // D'abord, essayer de récupérer l'abonnement existant
+    const { data: existingSubscription, error: fetchError } = await supabase
       .from('subscriptions')
       .select('*')
       .eq('user_id', userId)
       .eq('status', 'active')
-      .single()
+      .maybeSingle()
 
-    // Si l'erreur est "PGRST116" (aucun résultat trouvé), c'est normal
-    if (error && error.code !== 'PGRST116') {
-      console.error('Erreur lors de la récupération de l\'abonnement:', error)
+    // Si aucun abonnement n'existe, en créer un gratuit
+    if (!existingSubscription && (!fetchError || fetchError.code === 'PGRST116')) {
+      console.log('Création d\'un abonnement gratuit pour:', userId)
+      const freePlanLimits = getPlanLimits('free')
+      const { data: newSubscription, error: createError } = await supabase
+        .from('subscriptions')
+        .insert({
+          user_id: userId,
+          plan: 'free',
+          status: 'active',
+          created_at: new Date().toISOString(),
+          expires_at: new Date(Date.now() + (365 * 24 * 60 * 60 * 1000)).toISOString(), // 1 an par défaut
+          max_file_size: freePlanLimits.MAX_FILE_SIZE,
+          daily_shares: freePlanLimits.DAILY_SHARES,
+          storage_days: freePlanLimits.STORAGE_DAYS,
+          encryption_level: freePlanLimits.ENCRYPTION_LEVEL
+        })
+        .select()
+        .single()
+
+      if (createError) {
+        console.error('Erreur lors de la création de l\'abonnement gratuit:', createError)
+        return null
+      }
+
+      return newSubscription
+    }
+
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      console.error('Erreur lors de la récupération de l\'abonnement:', fetchError)
       return null
     }
 
-    return data
+    return existingSubscription
   } catch (error) {
     console.error('Exception lors de la récupération de l\'abonnement:', error)
     return null

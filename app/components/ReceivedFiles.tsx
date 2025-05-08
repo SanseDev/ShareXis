@@ -15,28 +15,33 @@ interface SharedFile {
 }
 
 export default function ReceivedFiles() {
-  const { deviceId } = useAuth()
+  const { userId, isGoogleLinked } = useAuth()
   const [files, setFiles] = useState<SharedFile[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const loadFiles = useCallback(async () => {
-    if (!deviceId) return
+    if (!userId) return
+    setLoading(true)
+    setError(null)
     
     try {
-      const receivedFiles = await getSharedFilesForRecipient(deviceId)
+      console.log('Chargement des fichiers pour userId:', userId)
+      const receivedFiles = await getSharedFilesForRecipient(userId)
+      console.log('Fichiers reçus:', receivedFiles?.length || 0)
       setFiles(receivedFiles || [])
     } catch (error) {
-      setError('Impossible de charger les fichiers reçus')
       console.error('Erreur de chargement:', error)
+      setError('Impossible de charger les fichiers reçus')
     } finally {
       setLoading(false)
     }
-  }, [deviceId])
+  }, [userId])
 
   useEffect(() => {
+    console.log('État auth changé, rechargement des fichiers:', { userId, isGoogleLinked })
     loadFiles()
-  }, [loadFiles])
+  }, [loadFiles, userId, isGoogleLinked])
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + ' B'

@@ -10,6 +10,7 @@ interface AuthContextType {
   hasSubscription: boolean
   isGoogleLinked: boolean
   googleEmail: string | null
+  userId: string | null
   linkGoogleAccount: () => Promise<void>
   unlinkGoogleAccount: () => Promise<void>
 }
@@ -22,58 +23,120 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [hasSubscription, setHasSubscription] = useState(false)
   const [isGoogleLinked, setIsGoogleLinked] = useState(false)
   const [googleEmail, setGoogleEmail] = useState<string | null>(null)
+  const [userId, setUserId] = useState<string | null>(null)
 
+  // Initialiser le deviceId et vérifier la session
   useEffect(() => {
-    // Vérifier si un ID d'appareil existe déjà
-    let storedDeviceId = localStorage.getItem('device_id')
-    
-    if (!storedDeviceId) {
-      // Générer un nouvel ID si aucun n'existe et prendre les 8 premiers caractères
-      storedDeviceId = uuidv4().slice(0, 8)
-      localStorage.setItem('device_id', storedDeviceId)
-    } else {
-      // S'assurer que l'ID existant est au bon format
-      storedDeviceId = storedDeviceId.slice(0, 8)
+    const initAuth = async () => {
+      // Récupérer ou créer le deviceId
+      let storedDeviceId = localStorage.getItem('device_id')
+      if (!storedDeviceId) {
+        storedDeviceId = uuidv4().slice(0, 8)
+        localStorage.setItem('device_id', storedDeviceId)
+      } else {
+        storedDeviceId = storedDeviceId.slice(0, 8)
+      }
+      setDeviceId(storedDeviceId)
+
+      try {
+        // Vérifier s'il y a une session active
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          console.log('Session Google trouvée:', {
+            googleId: session.user.id,
+            deviceId: storedDeviceId
+          })
+          setIsGoogleLinked(true)
+          setGoogleEmail(session.user.email || null)
+          // Utiliser le deviceId pour garder l'accès aux fichiers
+          setUserId(storedDeviceId)
+        } else {
+          console.log('Pas de session Google, utilisation du deviceId:', storedDeviceId)
+          setUserId(storedDeviceId)
+        }
+        setIsAuthenticated(true)
+      } catch (error) {
+        console.error('Erreur lors de l\'initialisation:', error)
+        setUserId(storedDeviceId)
+        setIsAuthenticated(true)
+      }
     }
-    
-    setDeviceId(storedDeviceId)
-    setIsAuthenticated(true) // L'utilisateur est toujours authentifié avec son deviceId
-    checkSubscription(storedDeviceId)
-    checkGoogleLink()
+
+    initAuth()
   }, [])
 
-  // Nouvel effet pour écouter les changements d'authentification Google
+  // Écouter les changements d'authentification
   useEffect(() => {
+    if (!deviceId) return
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session) {
-        setGoogleEmail(session.user.email || null)
+      console.log('Changement d\'état d\'authentification:', {
+        event,
+        googleId: session?.user?.id,
+        deviceId,
+        currentUserId: userId
+      })
+      
+      if (session?.user) {
         setIsGoogleLinked(true)
-        if (deviceId) {
-          await checkSubscription(deviceId)
-        }
+        setGoogleEmail(session.user.email || null)
+        // Garder le deviceId comme userId principal
+        setUserId(deviceId)
       } else {
-        setGoogleEmail(null)
         setIsGoogleLinked(false)
-        if (deviceId) {
-          await checkSubscription(deviceId)
-        }
+        setGoogleEmail(null)
+        setUserId(deviceId)
       }
     })
 
     return () => {
       subscription.unsubscribe()
     }
-  }, [deviceId])
+  }, [deviceId, userId])
 
-  const checkGoogleLink = async () => {
+  // Fonction pour migrer les fichiers de deviceId vers Google ID
+  const migrateFiles = async (fromId: string | null, toId: string) => {
+    if (!fromId) return
+    console.log('Début de la migration des fichiers:', { fromId, toId })
+
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session?.user) {
-        setIsGoogleLinked(true)
-        setGoogleEmail(session.user.email || null)
+      // Mettre à jour les fichiers reçus
+      const { error: recipientError } = await supabase
+        .from('shared_files')
+        .update({ recipient_id: toId })
+        .eq('recipient_id', fromId)
+
+      if (recipientError) {
+        console.error('Erreur lors de la migration des fichiers reçus:', recipientError)
+      } else {
+        console.log('Fichiers reçus migrés avec succès')
+      }
+
+      // Mettre à jour les fichiers envoyés
+      const { error: senderError } = await supabase
+        .from('shared_files')
+        .update({ sender_id: toId })
+        .eq('sender_id', fromId)
+
+      if (senderError) {
+        console.error('Erreur lors de la migration des fichiers envoyés:', senderError)
+      } else {
+        console.log('Fichiers envoyés migrés avec succès')
+      }
+
+      // Mettre à jour l'abonnement si existant
+      const { error: subscriptionError } = await supabase
+        .from('subscriptions')
+        .update({ user_id: toId })
+        .eq('user_id', fromId)
+
+      if (subscriptionError) {
+        console.error('Erreur lors de la migration de l\'abonnement:', subscriptionError)
+      } else {
+        console.log('Abonnement migré avec succès')
       }
     } catch (error) {
-      console.error('Erreur lors de la vérification de la liaison Google:', error)
+      console.error('Erreur lors de la migration des données:', error)
     }
   }
 
@@ -139,7 +202,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider 
       value={{ 
         isAuthenticated, 
-        deviceId, 
+        deviceId,
+        userId, 
         hasSubscription,
         isGoogleLinked,
         googleEmail,

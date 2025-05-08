@@ -38,6 +38,14 @@ export async function uploadFile(file: File, recipientId: string, senderId: stri
   }
 }
 
+// Fonction utilitaire pour nettoyer le nom du fichier
+const sanitizeFileName = (fileName: string): string => {
+  return fileName
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Supprime les accents
+    .replace(/[^a-zA-Z0-9.-]/g, '_') // Remplace les caractères spéciaux par des underscores
+}
+
 export const shareFiles = async (files: File[], recipientId: string, senderId: string, senderName: string) => {
   try {
     console.log('Début du partage des fichiers:', { filesCount: files.length, recipientId, senderId, senderName })
@@ -93,7 +101,8 @@ export const shareFiles = async (files: File[], recipientId: string, senderId: s
     const uploadedFiles = await Promise.all(
       files.map(async (file) => {
         const fileId = crypto.randomUUID()
-        console.log('Tentative d\'upload du fichier:', { fileId, fileName: file.name })
+        const sanitizedFileName = sanitizeFileName(file.name)
+        console.log('Tentative d\'upload du fichier:', { fileId, fileName: sanitizedFileName })
         
         // Vérifier que le bucket existe
         const { data: buckets, error: bucketsError } = await supabase
@@ -109,17 +118,17 @@ export const shareFiles = async (files: File[], recipientId: string, senderId: s
 
         const { error: uploadError } = await supabase.storage
           .from('shared-files')
-          .upload(`${fileId}/${file.name}`, file)
+          .upload(`${senderId}/${fileId}_${sanitizedFileName}`, file)
 
         if (uploadError) {
           console.error('Erreur détaillée Supabase:', uploadError)
           throw new Error(`Erreur lors de l'upload du fichier ${file.name}: ${uploadError.message}`)
         }
 
-        console.log('Fichier uploadé avec succès:', { fileId, fileName: file.name })
+        console.log('Fichier uploadé avec succès:', { fileId, fileName: sanitizedFileName })
         return {
           file_id: fileId,
-          file_name: file.name,
+          file_name: sanitizedFileName,
           file_size: file.size,
           file_type: file.type
         }
@@ -133,7 +142,9 @@ export const shareFiles = async (files: File[], recipientId: string, senderId: s
       sender_name: senderName,
       recipient_id: recipientId,
       created_at: new Date().toISOString(),
-      expires_at: new Date(Date.now() + (planLimits.STORAGE_DAYS * 24 * 60 * 60 * 1000)).toISOString()
+      expires_at: planLimits.STORAGE_DAYS === Infinity 
+        ? new Date(Date.now() + (100 * 365 * 24 * 60 * 60 * 1000)).toISOString() // 100 ans dans le futur
+        : new Date(Date.now() + (planLimits.STORAGE_DAYS * 24 * 60 * 60 * 1000)).toISOString()
     })))
 
     const { data: insertedData, error: dbError } = await supabase
@@ -148,7 +159,9 @@ export const shareFiles = async (files: File[], recipientId: string, senderId: s
           sender_name: senderName,
           recipient_id: recipientId,
           created_at: new Date().toISOString(),
-          expires_at: new Date(Date.now() + (planLimits.STORAGE_DAYS * 24 * 60 * 60 * 1000)).toISOString()
+          expires_at: planLimits.STORAGE_DAYS === Infinity 
+            ? new Date(Date.now() + (100 * 365 * 24 * 60 * 60 * 1000)).toISOString() // 100 ans dans le futur
+            : new Date(Date.now() + (planLimits.STORAGE_DAYS * 24 * 60 * 60 * 1000)).toISOString()
         }))
       )
       .select()
@@ -169,16 +182,30 @@ export const shareFiles = async (files: File[], recipientId: string, senderId: s
 
 export const getSharedFilesForRecipient = async (recipientId: string) => {
   try {
+    // Récupérer la session Google actuelle
+    const { data: { session } } = await supabase.auth.getSession()
+    const googleId = session?.user?.id
+    const ids = googleId ? [recipientId, googleId] : [recipientId]
+
+    console.log('Recherche des fichiers pour les IDs:', ids)
+
+    // Utiliser la fonction in pour rechercher avec plusieurs IDs
     const { data, error } = await supabase
       .from('shared_files')
       .select('*')
-      .eq('recipient_id', recipientId)
+      .in('recipient_id', ids)
       .order('created_at', { ascending: false })
 
     if (error) {
       console.error('Erreur lors de la récupération des fichiers:', error)
       throw new Error('Erreur lors de la récupération des fichiers')
     }
+
+    console.log('Résultats de la recherche:', {
+      total: data?.length || 0,
+      ids: ids,
+      files: data?.map(f => ({ id: f.file_id, recipient: f.recipient_id }))
+    })
 
     return data
   } catch (error) {
