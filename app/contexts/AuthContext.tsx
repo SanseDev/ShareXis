@@ -94,58 +94,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [deviceId, userId])
 
-  // Fonction pour migrer les fichiers de deviceId vers Google ID
-  const migrateFiles = async (fromId: string | null, toId: string) => {
-    if (!fromId) return
-    console.log('Début de la migration des fichiers:', { fromId, toId })
-
-    try {
-      // Mettre à jour les fichiers reçus
-      const { error: recipientError } = await supabase
-        .from('shared_files')
-        .update({ recipient_id: toId })
-        .eq('recipient_id', fromId)
-
-      if (recipientError) {
-        console.error('Erreur lors de la migration des fichiers reçus:', recipientError)
-      } else {
-        console.log('Fichiers reçus migrés avec succès')
-      }
-
-      // Mettre à jour les fichiers envoyés
-      const { error: senderError } = await supabase
-        .from('shared_files')
-        .update({ sender_id: toId })
-        .eq('sender_id', fromId)
-
-      if (senderError) {
-        console.error('Erreur lors de la migration des fichiers envoyés:', senderError)
-      } else {
-        console.log('Fichiers envoyés migrés avec succès')
-      }
-
-      // Mettre à jour l'abonnement si existant
-      const { error: subscriptionError } = await supabase
-        .from('subscriptions')
-        .update({ user_id: toId })
-        .eq('user_id', fromId)
-
-      if (subscriptionError) {
-        console.error('Erreur lors de la migration de l\'abonnement:', subscriptionError)
-      } else {
-        console.log('Abonnement migré avec succès')
-      }
-    } catch (error) {
-      console.error('Erreur lors de la migration des données:', error)
-    }
-  }
-
   const checkSubscription = async (id: string) => {
     try {
       const { data: { session } } = await supabase.auth.getSession()
       const userId = session?.user?.id || id
 
-      const { data, error } = await supabase
+      const { data: subscriptionData, error } = await supabase
         .from('subscriptions')
         .select('*')
         .eq('user_id', userId)
@@ -157,7 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return
       }
 
-      setHasSubscription(!!data)
+      setHasSubscription(!!subscriptionData)
     } catch (error) {
       console.error('Exception lors de la vérification de l\'abonnement:', error)
       setHasSubscription(false)
@@ -170,7 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       localStorage.setItem('temp_device_id', deviceId)
       
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`

@@ -17,6 +17,12 @@ interface ShareError extends Error {
   message: string
 }
 
+interface Subscription {
+  plan: 'free' | 'pro' | 'enterprise'
+  status: string
+  expires_at: string
+}
+
 export default function ShareFiles({ files, onClose }: ShareFilesProps) {
   const { deviceId } = useAuth()
   const [recipientId, setRecipientId] = useState('')
@@ -26,7 +32,7 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
   const [showSuccessNotification, setShowSuccessNotification] = useState(false)
   const [isLimitReached, setIsLimitReached] = useState(false)
   const [isCheckingLimits, setIsCheckingLimits] = useState(true)
-  const [subscription, setSubscription] = useState<any>(null)
+  const [subscription, setSubscription] = useState<Subscription | null>(null)
   const [planLimits, setPlanLimits] = useState(FREE_PLAN_LIMITS)
 
   const checkLimits = useCallback(async () => {

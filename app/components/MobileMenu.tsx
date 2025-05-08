@@ -13,7 +13,7 @@ interface MobileMenuProps {
 
 export default function MobileMenu({ subscription }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const { deviceId, googleEmail, isGoogleLinked, unlinkGoogleAccount } = useAuth()
+  const { googleEmail, isGoogleLinked, unlinkGoogleAccount } = useAuth()
 
   const handleUnlinkGoogle = () => {
     unlinkGoogleAccount()

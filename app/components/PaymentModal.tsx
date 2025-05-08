@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 import { X } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import PayPalButton from '../pricing/components/PayPalButton'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
@@ -22,7 +21,6 @@ export default function PaymentModal({ isOpen, onClose, plan }: PaymentModalProp
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'paypal' | 'crypto'>('card')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
 
   const handleStripePayment = async () => {
     try {
@@ -54,11 +52,6 @@ export default function PaymentModal({ isOpen, onClose, plan }: PaymentModalProp
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handlePaymentSuccess = () => {
-    onClose()
-    router.push('/success')
   }
 
   const handlePaymentError = (error: { message: string }) => {
@@ -135,7 +128,6 @@ export default function PaymentModal({ isOpen, onClose, plan }: PaymentModalProp
           <PayPalButton
             amount={plan.price}
             plan={plan.name.toLowerCase() as 'free' | 'pro' | 'enterprise'}
-            onSuccess={handlePaymentSuccess}
             onError={handlePaymentError}
           />
         )}

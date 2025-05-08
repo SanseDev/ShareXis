@@ -128,12 +128,12 @@ export async function POST(request: NextRequest) {
       message: 'Abonnement créé avec succès'
     })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Erreur inattendue lors de la vérification du paiement PayPal:', error)
     return NextResponse.json(
       { 
         error: 'Erreur lors de la vérification du paiement',
-        details: error?.message
+        details: error instanceof Error ? error.message : 'Erreur inconnue'
       },
       { status: 500 }
     )

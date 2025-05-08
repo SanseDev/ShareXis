@@ -1,6 +1,7 @@
 'use client'
 
 import { useAuth } from '../contexts/AuthContext'
+import Image from 'next/image'
 
 export default function GoogleLinkButton() {
   const { linkGoogleAccount } = useAuth()
@@ -10,7 +11,7 @@ export default function GoogleLinkButton() {
       onClick={linkGoogleAccount}
       className="w-full bg-white text-gray-900 hover:bg-gray-100 px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors"
     >
-      <img src="/google-icon.svg" alt="Google" className="w-5 h-5" />
+      <Image src="/google-icon.svg" alt="Google" width={20} height={20} />
       <span>Se connecter avec Google</span>
     </button>
   )

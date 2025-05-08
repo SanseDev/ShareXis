@@ -56,11 +56,11 @@ export async function GET(request: NextRequest) {
         // Essayer de récupérer le fichier depuis Supabase Storage
         const { data: storageData, error: storageError } = await supabase.storage
           .from('shared-files')
-          .download(`${fileId}/${fileData.file_name}`)
+          .download(`${fileData.sender_id}/${fileId}_${fileData.file_name}`)
         
         if (storageError) {
           console.error('Erreur lors de la récupération depuis Supabase Storage:', storageError)
-          return NextResponse.json({ error: 'Fichier non trouvé et clé de chiffrement manquante' }, { status: 404 })
+          return NextResponse.json({ error: 'Erreur lors de la récupération du fichier' }, { status: 404 })
         }
         
         if (!storageData) {
@@ -74,8 +74,8 @@ export async function GET(request: NextRequest) {
         // Encoder le nom du fichier pour éviter les problèmes de caractères spéciaux
         const encodedFilename = encodeURIComponent(fileData.file_name)
         
-        // Renvoyer le fichier non chiffré
-        console.log('Envoi du fichier non chiffré au client...')
+        // Renvoyer le fichier
+        console.log('Envoi du fichier au client...')
         return new NextResponse(fileBuffer, {
           headers: {
             'Content-Type': 'application/octet-stream',
@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
           }
         })
       } catch (error) {
-        console.error('Erreur lors de la récupération du fichier non chiffré:', error)
+        console.error('Erreur lors de la récupération du fichier:', error)
         return NextResponse.json({ error: 'Erreur lors de la récupération du fichier' }, { status: 500 })
       }
     }
@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
         // Si le fichier n'existe pas localement, essayer de le récupérer depuis Supabase Storage
         const { data: storageData, error: storageError } = await supabase.storage
           .from('shared-files')
-          .download(`${fileId}/${fileData.file_name}`)
+          .download(`${fileData.sender_id}/${fileId}_${fileData.file_name}`)
         
         if (storageError) {
           console.error('Erreur lors de la récupération depuis Supabase Storage:', storageError)
@@ -154,9 +154,9 @@ export async function GET(request: NextRequest) {
       )
     }
   } catch (error) {
-    console.error('General error:', error)
+    console.error('Erreur générale:', error)
     return NextResponse.json(
-      { error: 'Download error: ' + (error as Error).message },
+      { error: 'Erreur de téléchargement: ' + (error as Error).message },
       { status: 500 }
     )
   }

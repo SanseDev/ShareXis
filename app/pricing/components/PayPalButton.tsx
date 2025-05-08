@@ -1,29 +1,31 @@
 'use client'
 
 import { useState } from 'react'
-import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js'
+import { PayPalScriptProvider, PayPalButtons, PayPalButtonsComponentProps } from '@paypal/react-paypal-js'
 import { useAuth } from '../../contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 
 interface PayPalButtonProps {
   amount: number
   plan: 'free' | 'pro' | 'enterprise'
-  onSuccess?: () => void
   onError?: (error: { message: string }) => void
 }
 
-export default function PayPalButton({ amount, plan, onSuccess, onError }: PayPalButtonProps) {
+export default function PayPalButton({ amount, plan, onError }: PayPalButtonProps) {
   const { deviceId } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [paypalError, setPaypalError] = useState<string | null>(null)
   const router = useRouter()
 
-  const handlePayPalApprove = async (data: any, actions: any) => {
+  const handlePayPalApprove: PayPalButtonsComponentProps['onApprove'] = async (data, actions) => {
     try {
       setIsLoading(true)
       setPaypalError(null)
       
-      // Capture the payment
+      if (!actions.order) {
+        throw new Error('PayPal order actions not available')
+      }
+      
       const order = await actions.order.capture()
       
       if (order.status !== 'COMPLETED') {
@@ -31,18 +33,17 @@ export default function PayPalButton({ amount, plan, onSuccess, onError }: PayPa
       }
       
       // Encode parameters for URL
-      const params = new URLSearchParams({
-        paypal_order_id: order.id,
-        device_id: deviceId || '',
-        plan: plan
-      })
+      const params = new URLSearchParams()
+      params.append('paypal_order_id', order.id || '')
+      params.append('device_id', deviceId || '')
+      params.append('plan', plan)
       
       // Redirect to success page with encoded parameters
       router.push(`/success?${params.toString()}`)
       
-    } catch (error: any) {
+    } catch (error) {
       console.error('PayPal payment error:', error)
-      const errorMessage = error?.message || 'An error occurred during payment'
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred during payment'
       setPaypalError(errorMessage)
       onError?.({ message: errorMessage })
       setIsLoading(false)
@@ -87,6 +88,10 @@ export default function PayPalButton({ amount, plan, onSuccess, onError }: PayPa
             disabled={isLoading}
             createOrder={(data, actions) => {
               try {
+                if (!actions.order) {
+                  throw new Error('PayPal order actions not available')
+                }
+                
                 return actions.order.create({
                   intent: "CAPTURE",
                   purchase_units: [
@@ -99,18 +104,18 @@ export default function PayPalButton({ amount, plan, onSuccess, onError }: PayPa
                     }
                   ]
                 })
-              } catch (error: any) {
+              } catch (error) {
                 console.error("Error creating PayPal order:", error)
-                const errorMessage = error?.message || 'An error occurred while creating the order'
+                const errorMessage = error instanceof Error ? error.message : 'An error occurred while creating the order'
                 setPaypalError(errorMessage)
                 onError?.({ message: errorMessage })
                 return Promise.reject(error)
               }
             }}
             onApprove={handlePayPalApprove}
-            onError={(err: any) => {
+            onError={(err) => {
               console.error("PayPal error:", err)
-              const errorMessage = typeof err === 'string' ? err : (err?.message || 'An error occurred during PayPal payment')
+              const errorMessage = typeof err === 'string' ? err : (err instanceof Error ? err.message : 'An error occurred during PayPal payment')
               setPaypalError(errorMessage)
               onError?.({ message: errorMessage })
             }}

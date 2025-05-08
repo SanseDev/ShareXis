@@ -33,21 +33,11 @@ export default function Pricing() {
     }
   }
 
-  const handlePaymentError = (error: any) => {
-    const errorMessage = error?.message || 'An unexpected error occurred'
+  const handlePaymentError = (error: { message: string }) => {
+    const errorMessage = error.message || 'An unexpected error occurred'
     console.error('Payment error:', { error, message: errorMessage })
     setError(errorMessage)
     setSuccessMessage(null)
-  }
-
-  const handlePaymentSuccess = () => {
-    console.log('Payment successful')
-    setSuccessMessage(`Your ${selectedPlan} subscription has been successfully activated`)
-    setError(null)
-    // Redirect to success page after 2 seconds
-    setTimeout(() => {
-      window.location.href = '/success'
-    }, 2000)
   }
 
   const renderPaymentButtons = () => {
@@ -91,7 +81,6 @@ export default function Pricing() {
         <PayPalButton
           amount={amount}
           plan={selectedPlan}
-          onSuccess={handlePaymentSuccess}
           onError={handlePaymentError}
         />
         <div className="relative my-6">
@@ -105,7 +94,6 @@ export default function Pricing() {
         <StripeButton
           amount={amount}
           plan={selectedPlan}
-          onSuccess={handlePaymentSuccess}
           onError={handlePaymentError}
         />
       </div>

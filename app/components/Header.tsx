@@ -8,9 +8,15 @@ import { Inbox, FileText, Crown, Laptop, LogOut, User } from 'lucide-react'
 import MobileMenu from './MobileMenu'
 import { getUserSubscription } from '../utils/subscription'
 
+interface Subscription {
+  plan: 'free' | 'pro' | 'enterprise'
+  status: string
+  expires_at: string
+}
+
 export default function Header() {
-  const { deviceId, googleEmail, isGoogleLinked, unlinkGoogleAccount, linkGoogleAccount } = useAuth()
-  const [subscription, setSubscription] = useState<any>(null)
+  const { deviceId, isGoogleLinked, unlinkGoogleAccount, linkGoogleAccount } = useAuth()
+  const [subscription, setSubscription] = useState<Subscription | null>(null)
 
   useEffect(() => {
     const loadSubscription = async () => {
