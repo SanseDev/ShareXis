@@ -42,7 +42,7 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
       setPlanLimits(getPlanLimits(userSubscription?.plan || 'free'))
       setIsLimitReached(limitsState.isLimitReached)
     } catch (error) {
-      console.error('Erreur lors de la vérification des limites:', error)
+      console.error('Error checking limits:', error)
     } finally {
       setIsCheckingLimits(false)
     }
@@ -54,43 +54,43 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
 
   const handleShare = async () => {
     if (!deviceId) {
-      setError('Erreur: ID de l\'appareil non disponible')
+      setError('Error: Device ID not available')
       return
     }
 
     if (!recipientId.trim()) {
-      setError('Veuillez entrer un ID d\'appareil')
+      setError('Please enter a device ID')
       return
     }
 
     if (!senderName.trim()) {
-      setError('Veuillez entrer votre nom')
+      setError('Please enter your name')
       return
     }
 
     if (recipientId.length !== 8) {
-      setError('L\'ID d\'appareil doit contenir 8 caractères')
+      setError('Device ID must be 8 characters long')
       return
     }
 
     if (recipientId === deviceId) {
-      setError('Vous ne pouvez pas partager avec votre propre ID')
+      setError('You cannot share with your own ID')
       return
     }
 
-    // Vérifier la taille des fichiers
+    // Check file sizes
     const oversizedFiles = files.filter(file => file.size > planLimits.MAX_FILE_SIZE)
     if (oversizedFiles.length > 0) {
-      setError(`Les fichiers suivants dépassent la limite de ${planLimits.MAX_FILE_SIZE / (1024 * 1024)} MB : ${oversizedFiles.map(f => f.name).join(', ')}`)
+      setError(`The following files exceed the ${planLimits.MAX_FILE_SIZE / (1024 * 1024)} MB limit: ${oversizedFiles.map(f => f.name).join(', ')}`)
       return
     }
 
-    // Vérifier à nouveau les limites avant l'envoi si l'utilisateur n'a pas d'abonnement payant
+    // Check limits again before sending if user doesn't have a paid subscription
     if (!subscription || subscription.plan === 'free') {
       const limitsState = await getUserLimitsState(deviceId)
       if (limitsState.isLimitReached) {
         setIsLimitReached(true)
-        setError('Vous avez atteint votre limite quotidienne de partages')
+        setError('You have reached your daily sharing limit')
         return
       }
     }
@@ -106,8 +106,8 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
       }, 2000)
     } catch (error) {
       const shareError = error as ShareError
-      console.error('Erreur détaillée:', shareError)
-      setError(shareError.message || 'Une erreur est survenue lors du partage des fichiers')
+      console.error('Detailed error:', shareError)
+      setError(shareError.message || 'An error occurred while sharing files')
     } finally {
       setIsSharing(false)
     }
@@ -132,12 +132,12 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
       <div className="bg-[#1a1d24] rounded-xl p-6 max-w-md w-full relative">
         {showSuccessNotification && (
           <div className="absolute top-0 left-0 right-0 -translate-y-full mb-4 p-4 bg-green-500 text-white rounded-t-xl animate-slide-down">
-            Fichiers envoyés avec succès !
+            Files shared successfully!
           </div>
         )}
         
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold">Partager {files.length} fichier{files.length > 1 ? 's' : ''}</h2>
+          <h2 className="text-xl font-semibold">Share {files.length} file{files.length > 1 ? 's' : ''}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white"
@@ -151,8 +151,8 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
             <div className="p-4 bg-red-500/10 rounded-lg flex items-center gap-3 text-red-400">
               <Lock className="w-5 h-5" />
               <div>
-                <p className="font-medium">Limite quotidienne atteinte</p>
-                <p className="text-sm">Vous avez atteint votre limite de {planLimits.DAILY_SHARES} partages pour aujourd&apos;hui</p>
+                <p className="font-medium">Daily limit reached</p>
+                <p className="text-sm">You have reached your limit of {planLimits.DAILY_SHARES} shares for today</p>
               </div>
             </div>
             
@@ -160,29 +160,29 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
               onClick={onClose}
               className="w-full bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] px-4 py-2 rounded-lg transition-all duration-300"
             >
-              Fermer
+              Close
             </button>
           </div>
         ) : (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Votre nom</label>
+              <label className="block text-sm text-gray-400 mb-1">Your name</label>
               <input
                 type="text"
                 value={senderName}
                 onChange={(e) => setSenderName(e.target.value)}
-                placeholder="Entrez votre nom"
+                placeholder="Enter your name"
                 className="w-full px-4 py-2 bg-[#232730] rounded-lg border border-gray-700 focus:border-[#4d7cfe] focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-sm text-gray-400 mb-1">ID de l'appareil destinataire</label>
+              <label className="block text-sm text-gray-400 mb-1">Recipient device ID</label>
               <input
                 type="text"
                 value={recipientId}
                 onChange={(e) => setRecipientId(e.target.value)}
-                placeholder="Entrez l'ID à 8 caractères"
+                placeholder="Enter 8-character ID"
                 className="w-full px-4 py-2 bg-[#232730] rounded-lg border border-gray-700 focus:border-[#4d7cfe] focus:outline-none"
                 maxLength={8}
               />
@@ -190,13 +190,13 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
 
             <div className="bg-[#232730] p-4 rounded-lg space-y-2">
               <h3 className="text-sm font-medium text-gray-400">
-                {isPaidPlan ? `Limites du plan ${subscription.plan}` : 'Limites du plan gratuit'}:
+                {isPaidPlan ? `${subscription.plan} plan limits` : 'Free plan limits'}:
               </h3>
               <ul className="text-sm text-gray-400 space-y-1">
-                <li>• Taille maximale des fichiers: {planLimits.MAX_FILE_SIZE / (1024 * 1024)} MB</li>
-                <li>• {planLimits.DAILY_SHARES === Infinity ? 'Partages illimités' : `${planLimits.DAILY_SHARES} partages par jour`}</li>
-                <li>• Stockage pendant {planLimits.STORAGE_DAYS === Infinity ? 'une durée illimitée' : `${planLimits.STORAGE_DAYS} jours`}</li>
-                <li>• Chiffrement {planLimits.ENCRYPTION_LEVEL}</li>
+                <li>• Maximum file size: {planLimits.MAX_FILE_SIZE / (1024 * 1024)} MB</li>
+                <li>• {planLimits.DAILY_SHARES === Infinity ? 'Unlimited shares' : `${planLimits.DAILY_SHARES} shares per day`}</li>
+                <li>• Storage for {planLimits.STORAGE_DAYS === Infinity ? 'unlimited time' : `${planLimits.STORAGE_DAYS} days`}</li>
+                <li>• {planLimits.ENCRYPTION_LEVEL} encryption</li>
               </ul>
             </div>
 
@@ -213,7 +213,7 @@ export default function ShareFiles({ files, onClose }: ShareFilesProps) {
               className="w-full bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-all duration-300"
             >
               <Send className="w-4 h-4" />
-              {isSharing ? 'Envoi en cours...' : 'Envoyer les fichiers'}
+              {isSharing ? 'Sending...' : 'Send files'}
             </button>
           </div>
         )}
