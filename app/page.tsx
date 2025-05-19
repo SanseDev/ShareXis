@@ -36,7 +36,7 @@ export default function Home() {
               onClick={() => router.push('/documents')}
               className="bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] px-5 py-2 rounded-lg transition-all duration-300 font-medium"
             >
-              {isAuthenticated ? 'Mes Fichiers' : 'Commencer'}
+              {isAuthenticated ? 'My Files' : 'Commencer'}
             </button>
           </div>
         </div>
