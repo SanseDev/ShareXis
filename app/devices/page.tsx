@@ -20,7 +20,7 @@ export default function Devices() {
             <h1 className="text-3xl font-bold mb-4">Device Management Coming Soon</h1>
             
             <p className="text-gray-400 mb-6">
-              We&apos;re working hard to bring you a powerful device management feature. 
+              We&apos;re working hard to bring you a powerful device management feature.
               This will allow you to manage all your connected devices in one place.
             </p>
 

@@ -56,6 +56,9 @@ export default function Header() {
               <span className="text-lg md:text-xl font-semibold bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] text-transparent bg-clip-text">
                 ShareXis
               </span>
+              <span className="px-2 py-0.5 text-xs font-medium bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-white">
+                BETA
+              </span>
             </Link>
 
             {/* Navigation desktop */}

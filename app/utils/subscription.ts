@@ -18,42 +18,78 @@ export const getUserSubscription = async (userId: string): Promise<Subscription 
       .select('*')
       .eq('user_id', userId)
       .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(1)
       .maybeSingle()
 
-    // Si aucun abonnement n'existe, en créer un gratuit
-    if (!existingSubscription && (!fetchError || fetchError.code === 'PGRST116')) {
-      console.log('Création d\'un abonnement gratuit pour:', userId)
-      const freePlanLimits = getPlanLimits('free')
-      const { data: newSubscription, error: createError } = await supabase
-        .from('subscriptions')
-        .insert({
-          user_id: userId,
-          plan: 'free',
-          status: 'active',
-          created_at: new Date().toISOString(),
-          expires_at: new Date(Date.now() + (365 * 24 * 60 * 60 * 1000)).toISOString(), // 1 an par défaut
-          max_file_size: freePlanLimits.MAX_FILE_SIZE,
-          daily_shares: freePlanLimits.DAILY_SHARES,
-          storage_days: freePlanLimits.STORAGE_DAYS,
-          encryption_level: freePlanLimits.ENCRYPTION_LEVEL
-        })
-        .select()
-        .single()
-
-      if (createError) {
-        console.error('Erreur lors de la création de l\'abonnement gratuit:', createError)
-        return null
-      }
-
-      return newSubscription
-    }
-
+    // Si une erreur se produit (autre que "pas de résultat")
     if (fetchError && fetchError.code !== 'PGRST116') {
       console.error('Erreur lors de la récupération de l\'abonnement:', fetchError)
       return null
     }
 
-    return existingSubscription
+    // Si un abonnement actif existe, le retourner
+    if (existingSubscription) {
+      return existingSubscription
+    }
+
+    // Si aucun abonnement actif n'existe, vérifier s'il y a des abonnements inactifs
+    const { data: inactiveSubscription } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', userId)
+      .neq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    // Si un abonnement inactif existe, le réactiver avec le plan gratuit
+    if (inactiveSubscription) {
+      const { data: updatedSubscription, error: updateError } = await supabase
+        .from('subscriptions')
+        .update({
+          plan: 'free',
+          status: 'active',
+          created_at: new Date().toISOString(),
+          expires_at: new Date(Date.now() + (365 * 24 * 60 * 60 * 1000)).toISOString()
+        })
+        .eq('id', inactiveSubscription.id)
+        .select()
+        .single()
+
+      if (updateError) {
+        console.error('Erreur lors de la mise à jour de l\'abonnement:', updateError)
+        return null
+      }
+
+      return updatedSubscription
+    }
+
+    // Si aucun abonnement n'existe, en créer un nouveau gratuit
+    console.log('Création d\'un abonnement gratuit pour:', userId)
+    const freePlanLimits = getPlanLimits('free')
+    const { data: newSubscription, error: createError } = await supabase
+      .from('subscriptions')
+      .insert({
+        user_id: userId,
+        plan: 'free',
+        status: 'active',
+        created_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + (365 * 24 * 60 * 60 * 1000)).toISOString(),
+        max_file_size: freePlanLimits.MAX_FILE_SIZE,
+        daily_shares: freePlanLimits.DAILY_SHARES,
+        storage_days: freePlanLimits.STORAGE_DAYS,
+        encryption_level: freePlanLimits.ENCRYPTION_LEVEL
+      })
+      .select()
+      .single()
+
+    if (createError) {
+      console.error('Erreur lors de la création de l\'abonnement gratuit:', createError)
+      return null
+    }
+
+    return newSubscription
   } catch (error) {
     console.error('Exception lors de la récupération de l\'abonnement:', error)
     return null
