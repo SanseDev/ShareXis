@@ -1,19 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { motion } from "framer-motion";
+import BetaSignup from "./components/BetaSignup";
 
 export default function LandingPage() {
-  const [email, setEmail] = useState("");
-  const [isSubmitted, setIsSubmitted] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Integrate with your newsletter system
-    setIsSubmitted(true);
-    setTimeout(() => setIsSubmitted(false), 3000);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
       <motion.div
@@ -52,30 +42,14 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <motion.form
-          onSubmit={handleSubmit}
-          className="max-w-md mx-auto w-full"
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
+          className="max-w-md mx-auto"
         >
-          <div className="flex flex-col sm:flex-row gap-3">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              className="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              required
-            />
-            <button
-              type="submit"
-              className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors duration-200"
-            >
-              {isSubmitted ? "Thank you! 🎉" : "Start"}
-            </button>
-          </div>
-        </motion.form>
+          <BetaSignup />
+        </motion.div>
 
         <motion.div
           initial={{ opacity: 0 }}
@@ -108,7 +82,7 @@ export default function LandingPage() {
               </svg>
             </div>
             <h3 className="text-xl font-semibold mb-3 text-gray-900">Secure</h3>
-            <p className="text-gray-700 text-base">Your files are end-to-end encrypted for maximum security.</p>
+            <p className="text-gray-700 text-base">End-to-end encryption for all your file transfers.</p>
           </div>
         </motion.div>
       </motion.div>

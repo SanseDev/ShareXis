@@ -17,4 +17,39 @@ export const supabase = createClient(
       autoRefreshToken: true
     }
   }
-) 
+)
+
+export async function saveBetaSignup(email: string) {
+  try {
+    console.log('Attempting to save email:', email)
+    
+    const { data, error } = await supabase
+      .from('beta_signups')
+      .insert([{ email }])
+      .select()
+    
+    if (error) {
+      console.error('Supabase error:', error)
+      throw error
+    }
+
+    console.log('Success! Data:', data)
+    return { success: true }
+  } catch (error: any) {
+    console.error('Detailed error:', {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+      error
+    })
+    return { 
+      success: false, 
+      error: {
+        message: error.message || 'An error occurred while saving your registration',
+        code: error.code,
+        details: error.details
+      }
+    }
+  }
+} 
