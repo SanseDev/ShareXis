@@ -1,24 +1,32 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { saveBetaSignup } from '../lib/supabase'
+import { useSearchParams } from 'next/navigation'
 
 export default function BetaSignup() {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = useState('')
+  const [referralCode, setReferralCode] = useState<string | null>(null)
+  const searchParams = useSearchParams()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setStatus('loading')
     setErrorMessage('')
+    setReferralCode(null)
 
     try {
-      const { success, error } = await saveBetaSignup(email)
+      const referredBy = searchParams.get('ref')
+      const { success, error, referralCode: newReferralCode } = await saveBetaSignup(email, referredBy || undefined)
 
       if (success) {
         setStatus('success')
         setEmail('')
+        if (newReferralCode) {
+          setReferralCode(newReferralCode)
+        }
       } else {
         setStatus('error')
         setErrorMessage(
@@ -75,8 +83,22 @@ export default function BetaSignup() {
         </button>
 
         {status === 'success' && (
-          <div className="p-4 bg-green-500/10 rounded-lg text-green-500 text-center">
-            Thank you! You're registered for the beta.
+          <div className="p-4 bg-green-500/10 rounded-lg text-green-500">
+            <p className="text-center mb-2">Thank you! You're registered for the beta.</p>
+            {referralCode && (
+              <div className="mt-4">
+                <p className="text-sm mb-2">Refer your friends and get 1 free PRO month for every 3 referrals:</p>
+                <div className="bg-green-500/20 p-2 rounded flex items-center justify-between">
+                  <code className="text-sm">{`${window.location.origin}?ref=${referralCode}`}</code>
+                  <button
+                    onClick={() => navigator.clipboard.writeText(`${window.location.origin}?ref=${referralCode}`)}
+                    className="text-sm px-2 py-1 bg-green-500/30 rounded hover:bg-green-500/40 transition-colors"
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

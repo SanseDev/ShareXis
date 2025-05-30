@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { createHash } from 'crypto'
 
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
   throw new Error('NEXT_PUBLIC_SUPABASE_URL is required')
@@ -19,22 +20,54 @@ export const supabase = createClient(
   }
 )
 
-export async function saveBetaSignup(email: string) {
+function generateReferralCode(email: string): string {
+  const hash = createHash('sha256')
+    .update(email + process.env.NEXT_PUBLIC_REFERRAL_SALT)
+    .digest('hex')
+  return hash.slice(0, 8)
+}
+
+export async function saveBetaSignup(email: string, referredBy?: string) {
   try {
     console.log('Attempting to save email:', email)
     
-    const { data, error } = await supabase
+    // Generate unique referral code
+    const referralCode = generateReferralCode(email)
+    
+    // Insert new user
+    const { data: newSignup, error: insertError } = await supabase
       .from('beta_signups')
-      .insert([{ email }])
+      .insert([{ 
+        email,
+        referral_code: referralCode,
+        referred_by: referredBy
+      }])
       .select()
     
-    if (error) {
-      console.error('Supabase error:', error)
-      throw error
+    if (insertError) {
+      console.error('Supabase insert error:', insertError)
+      throw insertError
     }
 
-    console.log('Success! Data:', data)
-    return { success: true }
+    // If user was referred, update referrer's counter
+    if (referredBy) {
+      const { data: referrer, error: referrerError } = await supabase
+        .rpc('increment_referral_count', {
+          referrer_code: referredBy
+        })
+
+      if (referrerError) {
+        console.error('Error updating referrer:', referrerError)
+        // Don't block registration if referrer update fails
+      }
+    }
+
+    console.log('Success! Data:', newSignup)
+    return { 
+      success: true,
+      referralCode,
+      isReferred: !!referredBy
+    }
   } catch (error: any) {
     console.error('Detailed error:', {
       message: error.message,
