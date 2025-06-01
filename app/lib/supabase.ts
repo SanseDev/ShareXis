@@ -1,5 +1,4 @@
 import { createClient } from '@supabase/supabase-js'
-import { createHash } from 'crypto'
 
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
   throw new Error('NEXT_PUBLIC_SUPABASE_URL is required')
@@ -9,79 +8,206 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
   throw new Error('NEXT_PUBLIC_SUPABASE_ANON_KEY is required')
 }
 
+if (!process.env.NEXT_PUBLIC_SITE_URL) {
+  throw new Error('NEXT_PUBLIC_SITE_URL is required')
+}
+
 export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   {
     auth: {
       persistSession: true,
-      autoRefreshToken: true
+      autoRefreshToken: true,
+      flowType: 'pkce',
+      detectSessionInUrl: true
     }
   }
 )
 
 function generateReferralCode(email: string): string {
-  const hash = createHash('sha256')
-    .update(email + process.env.NEXT_PUBLIC_REFERRAL_SALT)
-    .digest('hex')
-  return hash.slice(0, 8)
+  // Prend les 6 premiers caractères de l'email (sans le domaine) et ajoute 4 caractères aléatoires
+  const username = email.split('@')[0];
+  const prefix = username.slice(0, 6).toLowerCase();
+  const randomChars = Math.random().toString(36).substring(2, 6);
+  return `${prefix}${randomChars}`;
 }
 
-export async function saveBetaSignup(email: string, referredBy?: string) {
+export async function saveBetaSignup(email: string, referrerCode?: string) {
   try {
     console.log('Attempting to save email:', email)
     
-    // Generate unique referral code
-    const referralCode = generateReferralCode(email)
-    
-    // Insert new user
-    const { data: newSignup, error: insertError } = await supabase
+    // Vérifier si l'email existe déjà
+    const { data: existingUser } = await supabase
       .from('beta_signups')
-      .insert([{ 
-        email,
-        referral_code: referralCode,
-        referred_by: referredBy
-      }])
+      .select('email, is_verified')
+      .eq('email', email)
+      .single()
+
+    if (existingUser) {
+      if (existingUser.is_verified) {
+        return {
+          success: false,
+          error: {
+            message: 'Cet email est déjà inscrit à la bêta',
+            code: 'EMAIL_EXISTS'
+          }
+        }
+      } else {
+        // Si l'email existe mais n'est pas vérifié, on renvoie un Magic Link
+        const { error: signInError } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/verify`,
+            data: {
+              referrerCode,
+              type: 'verification'
+            }
+          }
+        })
+
+        if (signInError) {
+          console.error('Magic Link error:', signInError)
+          throw signInError
+        }
+
+        return {
+          success: true,
+          data: {
+            message: 'Un nouveau lien de vérification a été envoyé à votre email'
+          }
+        }
+      }
+    }
+    
+    console.log('Creating new user signup')
+    // Générer un code de parrainage unique pour le nouvel utilisateur
+    const referralCode = generateReferralCode(email);
+    
+    // Préparer les données d'insertion
+    const signupData = {
+      email,
+      referral_code: referralCode,
+      is_verified: false,
+      ...(referrerCode ? { referred_by: referrerCode } : {})
+    };
+    
+    // Insérer le nouvel utilisateur non vérifié
+    const { error: insertError } = await supabase
+      .from('beta_signups')
+      .insert([signupData])
       .select()
+      .single()
     
     if (insertError) {
       console.error('Supabase insert error:', insertError)
-      throw insertError
-    }
-
-    // If user was referred, update referrer's counter
-    if (referredBy) {
-      const { data: referrer, error: referrerError } = await supabase
-        .rpc('increment_referral_count', {
-          referrer_code: referredBy
-        })
-
-      if (referrerError) {
-        console.error('Error updating referrer:', referrerError)
-        // Don't block registration if referrer update fails
+      return {
+        success: false,
+        error: {
+          message: 'Erreur lors de l\'inscription',
+          code: insertError.code,
+          details: insertError.message
+        }
       }
     }
 
-    console.log('Success! Data:', newSignup)
+    // Envoyer le Magic Link
+    const { error: signInError } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/verify`,
+        data: {
+          referralCode,
+          type: 'initial'
+        }
+      }
+    })
+
+    if (signInError) {
+      console.error('Magic Link error:', signInError)
+      throw signInError
+    }
+
     return { 
       success: true,
-      referralCode,
-      isReferred: !!referredBy
+      data: {
+        message: 'Un email de vérification a été envoyé à votre adresse'
+      }
     }
   } catch (error: any) {
-    console.error('Detailed error:', {
-      message: error.message,
-      code: error.code,
-      details: error.details,
-      hint: error.hint,
-      error
-    })
+    console.error('Detailed error:', error)
     return { 
       success: false, 
       error: {
-        message: error.message || 'An error occurred while saving your registration',
-        code: error.code,
-        details: error.details
+        message: 'Une erreur inattendue est survenue',
+        code: error.code || 'UNKNOWN_ERROR',
+        details: error.message || 'Détails non disponibles'
+      }
+    }
+  }
+}
+
+export async function verifyEmail(email: string) {
+  try {
+    // Mettre à jour le statut de vérification
+    const { error: updateError } = await supabase
+      .from('beta_signups')
+      .update({ is_verified: true })
+      .eq('email', email)
+
+    if (updateError) {
+      throw updateError
+    }
+
+    // Récupérer les informations de l'utilisateur
+    const { data: user } = await supabase
+      .from('beta_signups')
+      .select('referral_code, referred_by')
+      .eq('email', email)
+      .single()
+
+    // Si l'utilisateur a été parrainé, mettre à jour le compteur du parrain
+    if (user?.referred_by) {
+      const { data: referrer } = await supabase
+        .from('beta_signups')
+        .select('referral_count, pro_months_earned')
+        .eq('referral_code', user.referred_by)
+        .single()
+
+      if (referrer) {
+        const newReferralCount = (referrer.referral_count || 0) + 1
+        const newProMonths = newReferralCount >= 3 ? 
+          (referrer.pro_months_earned || 0) + 1 : 
+          (referrer.pro_months_earned || 0)
+
+        await supabase
+          .from('beta_signups')
+          .update({ 
+            referral_count: newReferralCount,
+            pro_months_earned: newProMonths
+          })
+          .eq('referral_code', user.referred_by)
+      }
+    }
+
+    // Retourner le lien de parrainage pour l'afficher à l'utilisateur
+    return {
+      success: true,
+      data: {
+        referralCode: user?.referral_code,
+        referralLink: user?.referral_code ? 
+          `${process.env.NEXT_PUBLIC_SITE_URL}/?ref=${user.referral_code}` : 
+          undefined
+      }
+    }
+  } catch (error: any) {
+    console.error('Verification error:', error)
+    return {
+      success: false,
+      error: {
+        message: 'Erreur lors de la vérification de l\'email',
+        code: error.code || 'VERIFICATION_ERROR',
+        details: error.message
       }
     }
   }

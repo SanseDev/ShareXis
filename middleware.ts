@@ -11,6 +11,7 @@ export async function middleware(request: NextRequest) {
     '/images',             // Images
     '/favicon.ico',        // Favicon
     '/logo.svg',           // Logo
+    '/verify',             // Page de vérification email
   ]
 
   // Vérifier si le chemin actuel est autorisé

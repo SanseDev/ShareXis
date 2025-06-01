@@ -1,52 +1,37 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { saveBetaSignup } from '../lib/supabase'
 import { useSearchParams } from 'next/navigation'
 
 export default function BetaSignup() {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
-  const [errorMessage, setErrorMessage] = useState('')
-  const [referralCode, setReferralCode] = useState<string | null>(null)
+  const [message, setMessage] = useState('')
   const searchParams = useSearchParams()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setStatus('loading')
-    setErrorMessage('')
-    setReferralCode(null)
+    setMessage('')
 
     try {
-      const referredBy = searchParams.get('ref')
-      const { success, error, referralCode: newReferralCode } = await saveBetaSignup(email, referredBy || undefined)
+      const referrerCode = searchParams.get('ref')
+      const { success, error, data } = await saveBetaSignup(email, referrerCode || undefined)
 
-      if (success) {
+      if (success && data) {
         setStatus('success')
         setEmail('')
-        if (newReferralCode) {
-          setReferralCode(newReferralCode)
-        }
+        setMessage(data.message || 'Inscription réussie !')
       } else {
         setStatus('error')
-        setErrorMessage(
-          error?.message || 
-          error?.details || 
-          'An error occurred during registration'
-        )
-        console.error('Error details:', error)
+        setMessage(error?.message || 'Une erreur est survenue lors de l\'inscription')
       }
     } catch (err) {
-      setStatus('error')
-      setErrorMessage('An unexpected error occurred')
       console.error('Unexpected error:', err)
+      setStatus('error')
+      setMessage('Une erreur inattendue est survenue')
     }
-
-    setTimeout(() => {
-      if (status === 'success') {
-        setStatus('idle')
-      }
-    }, 3000)
   }
 
   return (
@@ -54,15 +39,15 @@ export default function BetaSignup() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="email" className="block text-sm text-gray-400 mb-1">
-            Your email for beta access
+            Votre email pour l'accès bêta
           </label>
           <input
             type="email"
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            className="w-full px-4 py-2 bg-[#232730] rounded-lg border border-gray-700 focus:border-[#4d7cfe] focus:outline-none"
+            placeholder="Entrez votre email"
+            className="w-full px-4 py-2 bg-white rounded-lg border border-gray-300 focus:border-indigo-500 focus:outline-none"
             required
           />
         </div>
@@ -70,41 +55,28 @@ export default function BetaSignup() {
         <button
           type="submit"
           disabled={status === 'loading'}
-          className="w-full bg-gradient-to-r from-[#4d7cfe] to-[#00c2ff] hover:from-[#3d6df0] hover:to-[#00b2ff] disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-all duration-300"
+          className="w-full bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 rounded-lg flex items-center justify-center gap-2 text-white transition-all duration-300"
         >
           {status === 'loading' ? (
             <>
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              Signing up...
+              Inscription en cours...
             </>
           ) : (
-            "Join the beta"
+            "Rejoindre la bêta"
           )}
         </button>
 
         {status === 'success' && (
-          <div className="p-4 bg-green-500/10 rounded-lg text-green-500">
-            <p className="text-center mb-2">Thank you! You're registered for the beta.</p>
-            {referralCode && (
-              <div className="mt-4">
-                <p className="text-sm mb-2">Refer your friends and get 1 free PRO month for every 3 referrals:</p>
-                <div className="bg-green-500/20 p-2 rounded flex items-center justify-between">
-                  <code className="text-sm">{`${window.location.origin}?ref=${referralCode}`}</code>
-                  <button
-                    onClick={() => navigator.clipboard.writeText(`${window.location.origin}?ref=${referralCode}`)}
-                    className="text-sm px-2 py-1 bg-green-500/30 rounded hover:bg-green-500/40 transition-colors"
-                  >
-                    Copy
-                  </button>
-                </div>
-              </div>
-            )}
+          <div className="p-4 bg-green-500/10 rounded-lg text-green-500 text-center">
+            {message}
+            <p className="mt-2 text-sm">Vérifiez votre boîte mail pour confirmer votre inscription.</p>
           </div>
         )}
 
         {status === 'error' && (
           <div className="p-4 bg-red-500/10 rounded-lg text-red-500 text-center">
-            {errorMessage}
+            {message}
           </div>
         )}
       </form>
