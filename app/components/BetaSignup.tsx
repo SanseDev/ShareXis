@@ -39,7 +39,7 @@ export default function BetaSignup() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="email" className="block text-sm text-gray-400 mb-1">
-            Votre email pour l'accès bêta
+            Votre email pour l&apos;accès bêta
           </label>
           <input
             type="email"

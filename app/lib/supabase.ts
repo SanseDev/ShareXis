@@ -134,14 +134,16 @@ export async function saveBetaSignup(email: string, referrerCode?: string) {
         message: 'Un email de vérification a été envoyé à votre adresse'
       }
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Detailed error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Détails non disponibles';
+    const errorCode = (error as { code?: string }).code || 'UNKNOWN_ERROR';
     return { 
       success: false, 
       error: {
         message: 'Une erreur inattendue est survenue',
-        code: error.code || 'UNKNOWN_ERROR',
-        details: error.message || 'Détails non disponibles'
+        code: errorCode,
+        details: errorMessage
       }
     }
   }
@@ -200,14 +202,16 @@ export async function verifyEmail(email: string) {
           undefined
       }
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Verification error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+    const errorCode = (error as { code?: string }).code || 'VERIFICATION_ERROR';
     return {
       success: false,
       error: {
         message: 'Erreur lors de la vérification de l\'email',
-        code: error.code || 'VERIFICATION_ERROR',
-        details: error.message
+        code: errorCode,
+        details: errorMessage
       }
     }
   }

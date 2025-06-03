@@ -1,13 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '../lib/supabase'
 import { verifyEmail } from '../lib/supabase'
 
 export default function VerifyPage() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const [message, setMessage] = useState('')
   const [referralLink, setReferralLink] = useState('')
@@ -137,7 +134,7 @@ export default function VerifyPage() {
               onClick={handleRetry}
               className="w-full bg-gradient-to-r from-indigo-600 to-blue-500 text-white py-2 px-4 rounded-lg hover:from-indigo-700 hover:to-blue-600 transition-colors"
             >
-              Retour à l'accueil
+              Retour à l&apos;accueil
             </button>
           </div>
         )}

@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import BetaSignup from "./components/BetaSignup";
+import { Suspense } from "react";
 
 export default function LandingPage() {
   return (
@@ -48,7 +49,11 @@ export default function LandingPage() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="max-w-md mx-auto"
         >
-          <BetaSignup />
+          <Suspense fallback={<div className="w-full h-[200px] flex items-center justify-center">
+            <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>}>
+            <BetaSignup />
+          </Suspense>
         </motion.div>
 
         <motion.div

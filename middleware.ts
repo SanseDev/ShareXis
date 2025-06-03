@@ -2,27 +2,9 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  // Liste des chemins autorisés
-  const allowedPaths = [
-    '/',                    // Landing page
-    '/_next',              // Next.js resources
-    '/api',                // API routes
-    '/static',             // Static files
-    '/images',             // Images
-    '/favicon.ico',        // Favicon
-    '/logo.svg',           // Logo
-    '/verify',             // Page de vérification email
-  ]
-
-  // Vérifier si le chemin actuel est autorisé
-  const isAllowedPath = allowedPaths.some(path => 
-    request.nextUrl.pathname === path || 
-    request.nextUrl.pathname.startsWith(path + '/')
-  )
-
-  // Si le chemin n'est pas autorisé, rediriger vers la page d'accueil
-  if (!isAllowedPath) {
-    return NextResponse.redirect(new URL('/', request.url))
+  // Rediriger la landing page vers la page documents
+  if (request.nextUrl.pathname === '/') {
+    return NextResponse.redirect(new URL('/documents', request.url))
   }
 
   return NextResponse.next()
